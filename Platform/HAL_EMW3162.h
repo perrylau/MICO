@@ -111,43 +111,43 @@
 
 /* Definition for Debug UART  resources **********************************************/
 
-#define DEBUG_GPIO_CLK_INIT         RCC_AHB1PeriphClockCmd
-
-#define DEBUG_USARTx_CLK            RCC_APB2Periph_USART1
-#define DEBUG_USARTx_CLK_INIT       RCC_APB2PeriphClockCmd
-
-#define DEBUG_USARTx_RX_PIN         GPIO_Pin_9
-#define DEBUG_USARTx_RX_SOURCE      GPIO_PinSource9
-#define DEBUG_USARTx_RX_GPIO_PORT   GPIOA
-#define DEBUG_USARTx_RX_GPIO_CLK    RCC_AHB1Periph_GPIOA
-#define DEBUG_USARTx_RX_AF          GPIO_AF_USART1
-
-#define DEBUG_USARTx_TX_PIN         GPIO_Pin_10
-#define DEBUG_USARTx_TX_SOURCE      GPIO_PinSource10
-#define DEBUG_USARTx_TX_GPIO_PORT   GPIOA
-#define DEBUG_USARTx_TX_GPIO_CLK    RCC_AHB1Periph_GPIOA
-#define DEBUG_USARTx_TX_AF          GPIO_AF_USART1
-
-#define DEBUG_USARTx                USART1
-
 // #define DEBUG_GPIO_CLK_INIT         RCC_AHB1PeriphClockCmd
 
-// #define DEBUG_USARTx_CLK            RCC_APB2Periph_USART6
+// #define DEBUG_USARTx_CLK            RCC_APB2Periph_USART1
 // #define DEBUG_USARTx_CLK_INIT       RCC_APB2PeriphClockCmd
 
-// #define DEBUG_USARTx_RX_PIN         GPIO_Pin_7
-// #define DEBUG_USARTx_RX_SOURCE      GPIO_PinSource7
-// #define DEBUG_USARTx_RX_GPIO_PORT   GPIOC
-// #define DEBUG_USARTx_RX_GPIO_CLK    RCC_AHB1Periph_GPIOC
-// #define DEBUG_USARTx_RX_AF          GPIO_AF_USART6
+// #define DEBUG_USARTx_RX_PIN         GPIO_Pin_9
+// #define DEBUG_USARTx_RX_SOURCE      GPIO_PinSource9
+// #define DEBUG_USARTx_RX_GPIO_PORT   GPIOA
+// #define DEBUG_USARTx_RX_GPIO_CLK    RCC_AHB1Periph_GPIOA
+// #define DEBUG_USARTx_RX_AF          GPIO_AF_USART1
 
-// #define DEBUG_USARTx_TX_PIN         GPIO_Pin_6
-// #define DEBUG_USARTx_TX_SOURCE      GPIO_PinSource6
-// #define DEBUG_USARTx_TX_GPIO_PORT   GPIOC
-// #define DEBUG_USARTx_TX_GPIO_CLK    RCC_AHB1Periph_GPIOC
-// #define DEBUG_USARTx_TX_AF          GPIO_AF_USART6
+// #define DEBUG_USARTx_TX_PIN         GPIO_Pin_10
+// #define DEBUG_USARTx_TX_SOURCE      GPIO_PinSource10
+// #define DEBUG_USARTx_TX_GPIO_PORT   GPIOA
+// #define DEBUG_USARTx_TX_GPIO_CLK    RCC_AHB1Periph_GPIOA
+// #define DEBUG_USARTx_TX_AF          GPIO_AF_USART1
 
-// #define DEBUG_USARTx                USART6
+// #define DEBUG_USARTx                USART1
+
+#define DEBUG_GPIO_CLK_INIT         RCC_AHB1PeriphClockCmd
+
+#define DEBUG_USARTx_CLK            RCC_APB2Periph_USART6
+#define DEBUG_USARTx_CLK_INIT       RCC_APB2PeriphClockCmd
+
+#define DEBUG_USARTx_RX_PIN         GPIO_Pin_7
+#define DEBUG_USARTx_RX_SOURCE      GPIO_PinSource7
+#define DEBUG_USARTx_RX_GPIO_PORT   GPIOC
+#define DEBUG_USARTx_RX_GPIO_CLK    RCC_AHB1Periph_GPIOC
+#define DEBUG_USARTx_RX_AF          GPIO_AF_USART6
+
+#define DEBUG_USARTx_TX_PIN         GPIO_Pin_6
+#define DEBUG_USARTx_TX_SOURCE      GPIO_PinSource6
+#define DEBUG_USARTx_TX_GPIO_PORT   GPIOC
+#define DEBUG_USARTx_TX_GPIO_CLK    RCC_AHB1Periph_GPIOC
+#define DEBUG_USARTx_TX_AF          GPIO_AF_USART6
+
+#define DEBUG_USARTx                USART6
 
 /* Definition for I2C resources that connected to apple CP chip***************/
 #define CP_I2C                          I2C1

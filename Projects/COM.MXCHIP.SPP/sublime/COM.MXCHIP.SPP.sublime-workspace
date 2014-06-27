@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"DEF",
+				"DEFAULT_REMOTE_UDP_PORT	macro"
+			],
+			[
+				"send",
+				"sendto(int sockfd, const void *buf, unsigned int len, int flags, const struct sockaddr_t *dest_addr, socklen_t addrlen)	int"
+			],
+			[
 				"uint",
 				"uint32_t	typedef"
 			],
@@ -316,10 +324,6 @@
 				"inContext"
 			],
 			[
-				"send",
-				"send(int sockfd, const void *buf, unsigned int len, int flags)	int"
-			],
-			[
 				"mico_rtos_ge",
 				"mico_rtos_get_semaphore(mico_semaphore_t *semaphore, unsigned int timeout_ms)	MxchipStatus"
 			],
@@ -510,60 +514,59 @@
 			[
 				"se",
 				"selfKillCount	int32u"
-			],
-			[
-				"int1",
-				"int16u	typedef"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOEntrance.c",
+			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOAppDefine.h",
 			"settings":
 			{
-				"buffer_size": 12203,
+				"buffer_size": 3345,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Platform/Platform.h",
-			"settings":
-			{
-				"buffer_size": 2454,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/Platform.c",
-			"settings":
-			{
-				"buffer_size": 8196,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/Users/William/Downloads/libtinysrp-0.7.5/clitest.c",
-			"settings":
-			{
-				"buffer_size": 3762,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOConfigMenu.c",
-			"settings":
-			{
-				"buffer_size": 4873,
-				"line_ending": "Windows"
-			}
-		},
-		{
+			"contents": "/**\n  ******************************************************************************\n  * @file    MICOConfigDelegate.c \n  * @author  William Xu\n  * @version V1.0.0\n  * @date    05-May-2014\n  * @brief   This file provide delegate functons from Easylink function and FTC\n  *          server. \n  ******************************************************************************\n  * @attention\n  *\n  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS\n  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE\n  * TIME. AS A RESULT, MXCHIP Inc. SHALL NOT BE HELD LIABLE FOR ANY\n  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING\n  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE\n  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.\n  *\n  * <h2><center>&copy; COPYRIGHT 2014 MXCHIP Inc.</center></h2>\n  ******************************************************************************\n  */ \n\n#include \"Common.h\"\n#include \"debug.h\"\n#include \"Platform.h\"\n#include \"PlatformUart.h\"\n#include \"EasyLink/EasyLink.h\"\n#include \"external/JSON-C/json.h\"\n#include \"MICO.h\"\n#include \"MICODefine.h\"\n#include \"MICOAppDefine.h\"\n#include \"SppProtocol.h\"  \n#include \"MICOConfigMenu.h\"\n#include \"StringUtils.h\"\n\n#define config_delegate_log(M, ...) custom_log(\"Config Delegate\", M, ##__VA_ARGS__)\n#define config_delegate_log_trace() custom_log_trace(\"Config Delegate\")\n\nstatic mico_timer_t _Led_EL_timer;\n\nstatic void _led_EL_Timeout_handler( void* arg )\n{\n  (void)(arg);\n  Platform_LED_SYS_Set_Status(TRIGGER);\n}\n\nvoid ConfigWillStart( mico_Context_t * const inContext )\n{\n  config_delegate_log_trace();\n  (void)(inContext); \n    /*Led trigger*/\n  mico_init_timer(&_Led_EL_timer, LED_WAC_TRIGGER_INTERVAL, _led_EL_Timeout_handler, NULL);\n  mico_start_timer(&_Led_EL_timer);\n  return;\n}\n\nvoid ConfigWillStop( mico_Context_t * const inContext )\n{\n  config_delegate_log_trace();\n  mico_stop_timer(&_Led_EL_timer);\n  mico_deinit_timer( &_Led_EL_timer );\n  Platform_LED_SYS_Set_Status(OFF);\n  (void)(inContext); \n  return;\n}\n\nvoid ConfigSoftApWillStart(mico_Context_t * const inContext )\n{\n  OSStatus err;\n  sppProtocolInit(inContext);\n  PlatformUartInitialize(inContext);\n\n  err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, \"UART Recv\", uartRecv_thread, 0x500, (void*)inContext );\n  require_noerr_action( err, exit, config_delegate_log(\"ERROR: Unable to start the uart recv thread.\") );\n\n  err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, \"Local UDP\", localUdp_thread, 0x400, (void*)inContext );\n  require_noerr_action( err, exit, config_delegate_log(\"ERROR: Unable to start the local UDP thread.\") );\n\nexit:\n  return;\n}\n\n\nOSStatus ConfigELRecvAuthData(char * userInfo, mico_Context_t * const inContext )\n{\n  config_delegate_log_trace();\n  (void)(inContext);\n  (void)(userInfo);\n  return kNoErr;\n}\n\nOSStatus ConfigCreateReportJsonMessage( mico_Context_t * const inContext )\n{\n  OSStatus err = kNoErr;\n  config_delegate_log_trace();\n  char name[50], *tempString;\n  OTA_Versions_t versions;\n  char rfVersion[50];\n  char *rfVer = NULL, *rfVerTemp = NULL;\n\n  wlan_driver_version( rfVersion, 50 );\n  rfVer = strstr(rfVersion, \"version \");\n  config_delegate_log(\"RF version=%s\", rfVersion);\n  if(rfVer) rfVer = rfVer + strlen(\"version \");\n  rfVerTemp = rfVer;\n\n  for(rfVerTemp = rfVer; *rfVerTemp != ' '; rfVerTemp++);\n  *rfVerTemp = 0x0;\n\n  if(inContext->flashContentInRam.micoSystemConfig.configured == wLanUnConfigured){\n    /*You can upload a specific menu*/\n  }\n\n  mico_rtos_lock_mutex(&inContext->flashContentInRam_mutex);\n  snprintf(name, 50, \"%s(%c%c%c%c%c%c)\",MODEL, \n                                        inContext->micoStatus.mac[9],  inContext->micoStatus.mac[10], \n                                        inContext->micoStatus.mac[12], inContext->micoStatus.mac[13],\n                                        inContext->micoStatus.mac[15], inContext->micoStatus.mac[16]);\n\n  versions.fwVersion = FIRMWARE_REVISION;\n  versions.hdVersion = HARDWARE_REVISION;\n  versions.protocol =  PROTOCOL;\n  versions.rfVersion = NULL;\n\n  json_object *sectors, *sector, *subMenuSectors, *subMenuSector, *mainObject;\n\n  sectors = json_object_new_array();\n  require( sectors, exit );\n\n  err = MICOAddTopMenu(&mainObject, name, sectors, versions);\n  require_noerr(err, exit);\n\n  /*Sector 1*/\n  sector = json_object_new_array();\n  require( sector, exit );\n  err = MICOAddSector(sectors, \"MICO SYSTEM\",    sector);\n  require_noerr(err, exit);\n\n    /*name cell*/\n    err = MICOAddStringCellToSector(sector, \"Device Name\",    inContext->flashContentInRam.micoSystemConfig.name,               \"RW\", NULL);\n    require_noerr(err, exit);\n\n    //Bonjour switcher cell\n    err = MICOAddSwitchCellToSector(sector, \"Bonjour\",        inContext->flashContentInRam.micoSystemConfig.bonjourEnable,      \"RW\");\n    require_noerr(err, exit);\n\n    //RF power save switcher cell\n    err = MICOAddSwitchCellToSector(sector, \"RF power save\",  inContext->flashContentInRam.micoSystemConfig.rfPowerSaveEnable,  \"RW\");\n    require_noerr(err, exit);\n\n    //MCU power save switcher cell\n    err = MICOAddSwitchCellToSector(sector, \"MCU power save\", inContext->flashContentInRam.micoSystemConfig.mcuPowerSaveEnable, \"RW\");\n    require_noerr(err, exit);\n\n    /*sub menu*/\n    subMenuSectors = json_object_new_array();\n    require( subMenuSectors, exit );\n    err = MICOAddMenuCellToSector(sector, \"Detail\", subMenuSectors);\n    require_noerr(err, exit);\n      \n      subMenuSector = json_object_new_array();\n      require( subMenuSector, exit );\n      err = MICOAddSector(subMenuSectors,  \"\",    subMenuSector);\n      require_noerr(err, exit);\n\n        err = MICOAddStringCellToSector(subMenuSector, \"Firmware Rev.\",  FIRMWARE_REVISION, \"RO\", NULL);\n        require_noerr(err, exit);\n        err = MICOAddStringCellToSector(subMenuSector, \"Hardware Rev.\",  HARDWARE_REVISION, \"RO\", NULL);\n        require_noerr(err, exit);\n        err = MICOAddStringCellToSector(subMenuSector, \"MICO OS Rev.\",   system_lib_version(),              \"RO\", NULL);\n        require_noerr(err, exit);\n        err = MICOAddStringCellToSector(subMenuSector, \"RF Driver Rev.\", rfVer,                             \"RO\", NULL);\n        require_noerr(err, exit);\n        err = MICOAddStringCellToSector(subMenuSector, \"Model\",          MODEL,            \"RO\", NULL);\n        require_noerr(err, exit);\n        err = MICOAddStringCellToSector(subMenuSector, \"Manufacturer\",   MANUFACTURER,     \"RO\", NULL);\n        require_noerr(err, exit);\n        err = MICOAddStringCellToSector(subMenuSector, \"Protocol\",       PROTOCOL,         \"RO\", NULL);\n        require_noerr(err, exit);\n\n      subMenuSector = json_object_new_array();\n      err = MICOAddSector(subMenuSectors,  \"WLAN\",    subMenuSector);\n      require_noerr(err, exit);\n      \n        tempString = DataToHexStringWithColons( (uint8_t *)inContext->flashContentInRam.micoSystemConfig.bssid, 6 );\n        err = MICOAddStringCellToSector(subMenuSector, \"BSSID\",        tempString, \"RO\", NULL);\n        require_noerr(err, exit);\n        free(tempString);\n\n        err = MICOAddNumberCellToSector(subMenuSector, \"Channel\",      inContext->flashContentInRam.micoSystemConfig.channel, \"RO\", NULL);\n        require_noerr(err, exit);\n\n        switch(inContext->flashContentInRam.micoSystemConfig.security){\n          case SECURITY_TYPE_NONE:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"Open system\", \"RO\", NULL); \n            break;\n          case SECURITY_TYPE_WEP:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"WEP\",         \"RO\", NULL); \n            break;\n          case SECURITY_TYPE_WPA_TKIP:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"WPA TKIP\",    \"RO\", NULL); \n            break;\n          case SECURITY_TYPE_WPA_AES:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"WPA AES\",     \"RO\", NULL); \n            break;\n          case SECURITY_TYPE_WPA2_TKIP:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"WPA2 TKIP\",   \"RO\", NULL); \n            break;\n          case SECURITY_TYPE_WPA2_AES:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"WPA2 AES\",    \"RO\", NULL); \n            break;\n          case SECURITY_TYPE_WPA2_MIXED:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"WPA2 MIXED\",  \"RO\", NULL); \n            break;\n          default:\n            err = MICOAddStringCellToSector(subMenuSector, \"Security\",   \"Auto\",      \"RO\", NULL); \n            break;\n        }\n        require_noerr(err, exit); \n\n        if(inContext->flashContentInRam.micoSystemConfig.keyLength == maxKeyLen){ /*This is a PMK key, generated by user key in WPA security type*/\n          tempString = calloc(maxKeyLen+1, 1);\n          require_action(tempString, exit, err=kNoMemoryErr);\n          memcpy(tempString, inContext->flashContentInRam.micoSystemConfig.key, maxKeyLen);\n          err = MICOAddStringCellToSector(subMenuSector, \"PMK\",          tempString, \"RO\", NULL);\n          require_noerr(err, exit);\n          free(tempString);\n        }\n        else{\n          err = MICOAddStringCellToSector(subMenuSector, \"KEY\",          inContext->flashContentInRam.micoSystemConfig.user_key,  \"RO\", NULL);\n          require_noerr(err, exit);\n        }\n\n        /*DHCP cell*/\n        err = MICOAddSwitchCellToSector(subMenuSector, \"DHCP\",        inContext->flashContentInRam.micoSystemConfig.dhcpEnable,   \"RO\");\n        require_noerr(err, exit);\n        /*Local cell*/\n        err = MICOAddStringCellToSector(subMenuSector, \"IP address\",  inContext->micoStatus.localIp,   \"RO\", NULL);\n        require_noerr(err, exit);\n        /*Netmask cell*/\n        err = MICOAddStringCellToSector(subMenuSector, \"Net Mask\",    inContext->micoStatus.netMask,   \"RO\", NULL);\n        require_noerr(err, exit);\n        /*Gateway cell*/\n        err = MICOAddStringCellToSector(subMenuSector, \"Gateway\",     inContext->micoStatus.gateWay,   \"RO\", NULL);\n        require_noerr(err, exit);\n        /*DNS server cell*/\n        err = MICOAddStringCellToSector(subMenuSector, \"DNS Server\",  inContext->micoStatus.dnsServer, \"RO\", NULL);\n        require_noerr(err, exit);\n\n  /*Sector 3*/\n  sector = json_object_new_array();\n  require( sector, exit );\n  err = MICOAddSector(sectors, \"WLAN\",           sector);\n  require_noerr(err, exit);\n\n    err = MICOAddStringCellToSector(sector, \"Wi-Fi\",        inContext->flashContentInRam.micoSystemConfig.ssid,     \"RW\", NULL);\n    require_noerr(err, exit);\n\n    err = MICOAddStringCellToSector(sector, \"Password\",     inContext->flashContentInRam.micoSystemConfig.user_key, \"RW\", NULL);\n    require_noerr(err, exit);\n\n  /*Sector 4*/\n  sector = json_object_new_array();\n  require( sector, exit );\n  err = MICOAddSector(sectors, \"IP connections\",           sector);\n  require_noerr(err, exit);\n\n    // SPP protocol remote server connection enable\n    err = MICOAddNumberCellToSector(sector, \"Local UDP Port\",   inContext->flashContentInRam.appConfig.localUDPPort,   \"RW\", NULL);\n    require_noerr(err, exit);\n    \n\n    // SPP protocol remote server connection enable\n    err = MICOAddSwitchCellToSector(sector, \"Connect SPP Server\",   inContext->flashContentInRam.appConfig.remoteServerEnable,   \"RW\");\n    require_noerr(err, exit);\n\n    //Seerver address cell\n    err = MICOAddStringCellToSector(sector, \"SPP Server\",           inContext->flashContentInRam.appConfig.remoteServerDomain,   \"RW\", NULL);\n    require_noerr(err, exit);\n\n    //Seerver port cell\n    err = MICOAddNumberCellToSector(sector, \"SPP Server Port\",      inContext->flashContentInRam.appConfig.remoteServerPort,   \"RW\", NULL);\n    require_noerr(err, exit);\n\n  /*Sector 5*/\n  sector = json_object_new_array();\n  require( sector, exit );\n  err = MICOAddSector(sectors, \"MCU IOs\",            sector);\n  require_noerr(err, exit);\n\n    /*UART Baurdrate cell*/\n    json_object *selectArray;\n    selectArray = json_object_new_array();\n    require( selectArray, exit );\n    json_object_array_add(selectArray, json_object_new_int(9600));\n    json_object_array_add(selectArray, json_object_new_int(19200));\n    json_object_array_add(selectArray, json_object_new_int(38400));\n    json_object_array_add(selectArray, json_object_new_int(57600));\n    json_object_array_add(selectArray, json_object_new_int(115200));\n    err = MICOAddNumberCellToSector(sector, \"Baurdrate\", 115200, \"RW\", selectArray);\n    require_noerr(err, exit);\n\n  inContext->micoStatus.easylink_report = mainObject;\n  mico_rtos_unlock_mutex(&inContext->flashContentInRam_mutex);\n  \nexit:\n    return err;\n\n}\n\nOSStatus ConfigIncommingJsonMessage( const char *input, mico_Context_t * const inContext )\n{\n  OSStatus err = kNoErr;\n  json_object *new_obj;\n  config_delegate_log_trace();\n\n  new_obj = json_tokener_parse(input);\n  require_action(new_obj, exit, err = kUnknownErr);\n  config_delegate_log(\"Recv config object=%s\", json_object_to_json_string(new_obj));\n  mico_rtos_lock_mutex(&inContext->flashContentInRam_mutex);\n  json_object_object_foreach(new_obj, key, val) {\n    if(!strcmp(key, \"Device Name\")){\n      strncpy(inContext->flashContentInRam.micoSystemConfig.name, json_object_get_string(val), maxNameLen);\n    }else if(!strcmp(key, \"RF power save\")){\n      inContext->flashContentInRam.micoSystemConfig.rfPowerSaveEnable = json_object_get_boolean(val);\n    }else if(!strcmp(key, \"MCU power save\")){\n      inContext->flashContentInRam.micoSystemConfig.mcuPowerSaveEnable = json_object_get_boolean(val);\n    }else if(!strcmp(key, \"Bonjour\")){\n      inContext->flashContentInRam.micoSystemConfig.bonjourEnable = json_object_get_boolean(val);\n    }else if(!strcmp(key, \"Wi-Fi\")){\n      strncpy(inContext->flashContentInRam.micoSystemConfig.ssid, json_object_get_string(val), maxSsidLen);\n      inContext->flashContentInRam.micoSystemConfig.channel = 0;\n      memset(inContext->flashContentInRam.micoSystemConfig.bssid, 0x0, 6);\n      inContext->flashContentInRam.micoSystemConfig.security = SECURITY_TYPE_AUTO;\n      memcpy(inContext->flashContentInRam.micoSystemConfig.key, inContext->flashContentInRam.micoSystemConfig.user_key, maxKeyLen);\n      inContext->flashContentInRam.micoSystemConfig.keyLength = inContext->flashContentInRam.micoSystemConfig.user_keyLength;\n    }else if(!strcmp(key, \"Password\")){\n      inContext->flashContentInRam.micoSystemConfig.security = SECURITY_TYPE_AUTO;\n      strncpy(inContext->flashContentInRam.micoSystemConfig.key, json_object_get_string(val), maxKeyLen);\n      strncpy(inContext->flashContentInRam.micoSystemConfig.user_key, json_object_get_string(val), maxKeyLen);\n      inContext->flashContentInRam.micoSystemConfig.keyLength = strlen(inContext->flashContentInRam.micoSystemConfig.key);\n      inContext->flashContentInRam.micoSystemConfig.user_keyLength = strlen(inContext->flashContentInRam.micoSystemConfig.key);\n    }else if(!strcmp(key, \"Connect SPP Server\")){\n      inContext->flashContentInRam.appConfig.remoteServerEnable = json_object_get_boolean(val);\n    }else if(!strcmp(key, \"SPP Server\")){\n      strncpy(inContext->flashContentInRam.appConfig.remoteServerDomain, json_object_get_string(val), 64);\n    }else if(!strcmp(key, \"SPP Server Port\")){\n      inContext->flashContentInRam.appConfig.remoteServerPort = json_object_get_int(val);\n    }else if(!strcmp(key, \"Local UDP Port\")){\n      inContext->flashContentInRam.appConfig.localUDPPort = json_object_get_int(val);\n    }else if(!strcmp(key, \"Baurdrate\")){\n      inContext->flashContentInRam.appConfig.USART_BaudRate = json_object_get_int(val);\n    }\n  }\n  json_object_put(new_obj);\n  mico_rtos_unlock_mutex(&inContext->flashContentInRam_mutex);\n\n  inContext->flashContentInRam.micoSystemConfig.configured = allConfigured;\n  MICOUpdateConfiguration(inContext);\n\nexit:\n  return err; \n}",
 			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOConfigDelegate.c",
+			"file_size": 16266,
+			"file_write_time": 1403859343000000,
 			"settings":
 			{
-				"buffer_size": 15650,
+				"buffer_size": 15910,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOAppEntrance.c",
+			"settings":
+			{
+				"buffer_size": 3119,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/LocalUdp.c",
+			"settings":
+			{
+				"buffer_size": 3755,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/LocalTcpServer.c",
+			"settings":
+			{
+				"buffer_size": 5531,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/SppProtocol.c",
+			"settings":
+			{
+				"buffer_size": 2776,
 				"line_ending": "Windows"
 			}
 		}
@@ -628,17 +631,32 @@
 	},
 	"file_history":
 	[
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/README.md",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/UartRecv.c",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOConfigMenu.c",
+		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Library/Support/MDNSUtils.h",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/Platform.c",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOEntrance.c",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICODefine.h",
+		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Platform/Platform.h",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOBonjour.c",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/WAC/MFiSAPServer.c",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOConfigServer.c",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Library/MICOSocket.h",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/HAL_EMW3162.h",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/EasyLink/EasyLink.c",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOAppEntrance.c",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/WAC/MFi-SAP.c",
+		"/Users/William/Downloads/libtinysrp-0.7.5/clitest.c",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/WAC/WACTLV.h",
+		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Library/Support/RingBufferUtils.h",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformUart.c",
+		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformUART.h",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/SppProtocol.h",
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Library/support/MDNSUtils.c",
 		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOConfigMenu.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/LocalTcpServer.c",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOConfigDelegate.c",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Projects/COM.MXCHIP.SPP/sublime/COM.MXCHIP.SPP.sublime-project",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOConfigMenu.c",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/HAL_Open1081.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/EasyLink/EasyLink.c",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICODefine.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/External/JSON-C/json_object.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/External/JSON-C/json_object_private.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/External/JSON-C/linkhash.h",
@@ -648,7 +666,6 @@
 		"/Users/william/Develop/Clang_lib/ARMCC/include/stdlib.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/SppProtocol.c",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/HAL_EMW3161.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/HAL_EMW3162.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOAppDefine.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/External/JSON-C/bits.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/External/JSON-C/arraylist.c",
@@ -722,7 +739,6 @@
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo2_COM.MXCHIP.SPP/SppProtocol.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo2_COM.MXCHIP.SPP/RemoteTcpClient.c",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo2_COM.MXCHIP.SPP/UartRecv.c",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformUart.c",
 		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/STM32F2xx_StdPeriph_Driver/inc/stm32f2xx_usart.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo2_COM.MXCHIP.SPP/SppProtocol.c",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformWDG.h",
@@ -742,20 +758,7 @@
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/mico_system_monitor",
 		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformWDG.h",
 		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformLogging.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformFlash.c",
-		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformUart.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/mico_app_main.c",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/HaProtocol.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/User_EasyLink.c",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/mico_app_define.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/HaProtocol.c",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/UartRecv.c",
-		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Library/mxchipWNet.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/RemoteTcpClient.c",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/LocalTcpServer.c",
-		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Library/Support/Common.h",
-		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/remoteTcpClient.c",
-		"/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Demos/Demo4_mxchipWNet_HA/mico_app_define.h"
+		"/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/PlatformFlash.c"
 	],
 	"find":
 	{
@@ -782,8 +785,28 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"pmk",
-			"select",
+			"sppWlanCommandProcess",
+			"clientLoopBackFd",
+			"sppUartCommandProcess",
+			"_recved_uart_loopback_fd",
+			"sppUartCommandProcess",
+			"_recved_uart_loopback_fd",
+			"RECVED_UART_DATA_LOOPBACK_PORT",
+			"LOCAL_TCP_SERVER_LOOPBACK_PORT",
+			"loopBackPortTable",
+			"UART_RX_BUF_SIZE",
+			"platform_uart_receive_bytes",
+			"rx_buffer",
+			"ring_buffer_t",
+			"service_name",
+			"_bonjour_thread",
+			"@",
+			"__MFiSAP_Exchange_ServerM1",
+			"MFiSAP_Exchange",
+			"_HandleState_WaitingForAuthSetupMessage",
+			"_HandleState_HandleAuthSetupMessage",
+			"kWACTLV_TypeLengthSize",
+			"kWACTLV_WiFiSSID",
 			"Platform_Enter_STANDBY",
 			"eState_Standby",
 			"threadexit",
@@ -889,27 +912,7 @@
 			"set_network_state",
 			"tx_complete",
 			"uart_wakeup_thread",
-			"Rx_irq_handler",
-			"RX_BUFFER_SIZE",
-			"ring_buffer_used_space",
-			"platform_uart_receive_bytes",
-			"_wifiConnected_mutex",
-			"easylink_thread",
-			"mico_notify_EASYLINK_COMPLETE_function",
-			"mico_notify_EASYLINK_COMPLETED",
-			"EasyLinkNotify_EasyLinkCompleteHandler",
-			"easylink_thread",
-			"easylink_sem",
-			"md5",
-			"mutex",
-			"REMOTE_CONNECT",
-			"_check_sum",
-			"set_network_state",
-			"minFd",
-			"Platform_Debug_UART_Init\n",
-			"Platform_Debug_UART_Init\nPlatform_Debug_UART_Init",
-			"Platform_Debug_UART_Init",
-			"HTTPGetHeaderField"
+			"Rx_irq_handler"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -927,51 +930,23 @@
 	"groups":
 	[
 		{
-			"selected": 5,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOEntrance.c",
+					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOAppDefine.h",
 					"settings":
 					{
-						"buffer_size": 12203,
+						"buffer_size": 3345,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2315.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/Users/william/Develop/mxchipWNet Pro Demo@EMW316x/Platform/Platform.h",
-					"settings":
-					{
-						"buffer_size": 2454,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
+								2836,
+								2823
 							]
 						],
 						"settings":
@@ -981,25 +956,53 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 548.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOConfigDelegate.c",
+					"settings":
+					{
+						"buffer_size": 15910,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								11200,
+								11200
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3631.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Platform/Platform.c",
+					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOAppEntrance.c",
 					"settings":
 					{
-						"buffer_size": 8196,
+						"buffer_size": 3119,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4261,
-								4261
+								2088,
+								2111
 							]
 						],
 						"settings":
@@ -1009,25 +1012,25 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 64.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "/Users/William/Downloads/libtinysrp-0.7.5/clitest.c",
+					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/LocalUdp.c",
 					"settings":
 					{
-						"buffer_size": 3762,
+						"buffer_size": 3755,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2829,
-								2841
+								1914,
+								1926
 							]
 						],
 						"settings":
@@ -1037,25 +1040,25 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 451.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/MICO/MICOConfigMenu.c",
+					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/LocalTcpServer.c",
 					"settings":
 					{
-						"buffer_size": 4873,
+						"buffer_size": 5531,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1440,
-								1440
+								2760,
+								2760
 							]
 						],
 						"settings":
@@ -1065,25 +1068,25 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 218.0,
+						"translation.y": 339.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 5,
-					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/MICOConfigDelegate.c",
+					"file": "/Users/William/Develop/mxchipWNet Pro Demo@EMW316x/Demos/COM.MXCHIP.SPP/SppProtocol.c",
 					"settings":
 					{
-						"buffer_size": 15650,
+						"buffer_size": 2776,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								8643,
-								8668
+								1857,
+								1867
 							]
 						],
 						"settings":
@@ -1093,7 +1096,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 4727.0,
+						"translation.y": 255.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

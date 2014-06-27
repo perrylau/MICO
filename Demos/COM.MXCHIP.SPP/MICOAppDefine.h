@@ -55,13 +55,14 @@
 /*User provided configurations*/
 #define CONFIGURATION_VERSION               0x0000000 // if changed default configuration, add this num
 #define MAX_Local_Client_Num                8
-#define DEAFULT_REMOTE_SERVER               "192.168.2.254"
-#define DEFAULT_REMOTE_SERVER_PORT          8080
+#define DEAFULT_REMOTE_SERVER               "www.netseedcn.com"
+#define DEFAULT_REMOTE_SERVER_PORT          8899
+#define DEFAULT_LOCAL_UDP_PORT              48899
 #define UART_RECV_TIMEOUT                   500
 #define UART_ONE_PACKAGE_LENGTH             1024
 #define wlanBufferLen                       1024
 
-#define LOCAL_TCP_SERVER_LOOPBACK_PORT      1000
+#define LOCAL_UDP_LOOPBACK_PORT             1000
 #define REMOTE_TCP_CLIENT_LOOPBACK_PORT     1002
 #define RECVED_UART_DATA_LOOPBACK_PORT      1003
 
@@ -72,10 +73,10 @@ typedef struct
   uint32_t          localServerPort;
 
   /*local services*/
-  bool              localServerEnable;
   bool              remoteServerEnable;
   char              remoteServerDomain[64];
   int               remoteServerPort;
+  int               localUDPPort;
 
   /*IO settings*/
   uint32_t          USART_BaudRate;
@@ -91,6 +92,7 @@ typedef struct _current_app_status_t {
 
 
 void localTcpServer_thread(void *inContext);
+void localUdp_thread(void *inContext);
 void remoteTcpClient_thread(void *inContext);
 void uartRecv_thread(void *inContext);
 

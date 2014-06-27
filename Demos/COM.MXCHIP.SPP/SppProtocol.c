@@ -68,17 +68,12 @@ OSStatus sppUartCommandProcess(uint8_t *inBuf, int inLen, mico_Context_t * const
 {
   spp_log_trace();
   OSStatus err = kNoErr;
-  int i;
   struct sockaddr_t addr;
 
   addr.s_ip = IPADDR_LOOPBACK;
-
-  for(i=0; i < MAX_Local_Client_Num; i++) {
-    if( inContext->appStatus.loopBack_PortList[i] != 0 ){
-      addr.s_port = inContext->appStatus.loopBack_PortList[i];
-      sendto(_recved_uart_loopback_fd, inBuf, inLen, 0, &addr, sizeof(addr));
-    }
-  }
+  
+  addr.s_port = LOCAL_UDP_LOOPBACK_PORT;
+  sendto(_recved_uart_loopback_fd, inBuf, inLen, 0, &addr, sizeof(addr));
 
   if(inContext->appStatus.isRemoteConnected==true){
     addr.s_ip = IPADDR_LOOPBACK;

@@ -73,10 +73,8 @@ void ConfigSoftApWillStart(mico_Context_t * const inContext )
   err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "UART Recv", uartRecv_thread, 0x500, (void*)inContext );
   require_noerr_action( err, exit, config_delegate_log("ERROR: Unable to start the uart recv thread.") );
 
- if(inContext->flashContentInRam.appConfig.localServerEnable == true){
-   err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Local Server", localTcpServer_thread, 0x200, (void*)inContext );
-   require_noerr_action( err, exit, config_delegate_log("ERROR: Unable to start the local server thread.") );
- }
+  err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Local UDP", localUdp_thread, 0x400, (void*)inContext );
+  require_noerr_action( err, exit, config_delegate_log("ERROR: Unable to start the local UDP thread.") );
 
 exit:
   return;
@@ -264,9 +262,12 @@ OSStatus ConfigCreateReportJsonMessage( mico_Context_t * const inContext )
   /*Sector 4*/
   sector = json_object_new_array();
   require( sector, exit );
-  err = MICOAddSector(sectors, "SPP Remote Server",           sector);
+  err = MICOAddSector(sectors, "IP connections",           sector);
   require_noerr(err, exit);
 
+    // SPP protocol remote server connection enable
+    err = MICOAddNumberCellToSector(sector, "Local UDP Port",   inContext->flashContentInRam.appConfig.localUDPPort,   "RW", NULL);
+    require_noerr(err, exit);
 
     // SPP protocol remote server connection enable
     err = MICOAddSwitchCellToSector(sector, "Connect SPP Server",   inContext->flashContentInRam.appConfig.remoteServerEnable,   "RW");
@@ -295,7 +296,7 @@ OSStatus ConfigCreateReportJsonMessage( mico_Context_t * const inContext )
     json_object_array_add(selectArray, json_object_new_int(38400));
     json_object_array_add(selectArray, json_object_new_int(57600));
     json_object_array_add(selectArray, json_object_new_int(115200));
-    err = MICOAddNumberCellToSector(sector, "Baurdrate", 115200, "RW", selectArray);
+    err = MICOAddNumberCellToSector(sector, "Baurdrate", inContext->flashContentInRam.appConfig.USART_BaudRate, "RW", selectArray);
     require_noerr(err, exit);
 
   inContext->micoStatus.easylink_report = mainObject;
@@ -344,6 +345,8 @@ OSStatus ConfigIncommingJsonMessage( const char *input, mico_Context_t * const i
       strncpy(inContext->flashContentInRam.appConfig.remoteServerDomain, json_object_get_string(val), 64);
     }else if(!strcmp(key, "SPP Server Port")){
       inContext->flashContentInRam.appConfig.remoteServerPort = json_object_get_int(val);
+    }else if(!strcmp(key, "Local UDP Port")){
+      inContext->flashContentInRam.appConfig.localUDPPort = json_object_get_int(val);
     }else if(!strcmp(key, "Baurdrate")){
       inContext->flashContentInRam.appConfig.USART_BaudRate = json_object_get_int(val);
     }

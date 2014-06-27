@@ -32,16 +32,17 @@
 #define app_log(M, ...) custom_log("APP", M, ##__VA_ARGS__)
 #define app_log_trace() custom_log_trace("APP")
 
-/* MICO system callback: Restore default configuration provided by application */
+/* MICO system callback: Restore default configuration provided by application, these
+   settings are stored in flash and will not changde in power cycles */
 void appRestoreDefault_callback(mico_Context_t *inContext)
 {
   inContext->flashContentInRam.appConfig.configDataVer = CONFIGURATION_VERSION;
   inContext->flashContentInRam.appConfig.localServerPort = LOCAL_PORT;
-  inContext->flashContentInRam.appConfig.localServerEnable = true;
-  inContext->flashContentInRam.appConfig.USART_BaudRate = 115200;
+  inContext->flashContentInRam.appConfig.USART_BaudRate = 19200;
   inContext->flashContentInRam.appConfig.remoteServerEnable = true;
   sprintf(inContext->flashContentInRam.appConfig.remoteServerDomain, DEAFULT_REMOTE_SERVER);
   inContext->flashContentInRam.appConfig.remoteServerPort = DEFAULT_REMOTE_SERVER_PORT;
+  inContext->flashContentInRam.appConfig.localUDPPort = DEFAULT_LOCAL_UDP_PORT;
 }
 
 OSStatus MICOStartApplication( mico_Context_t * const inContext )
@@ -57,13 +58,11 @@ OSStatus MICOStartApplication( mico_Context_t * const inContext )
   err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "UART Recv", uartRecv_thread, 0x200, (void*)inContext );
   require_noerr_action( err, exit, app_log("ERROR: Unable to start the uart recv thread.") );
 
- if(inContext->flashContentInRam.appConfig.localServerEnable == true){
-   err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Local Server", localTcpServer_thread, 0x200, (void*)inContext );
-   require_noerr_action( err, exit, app_log("ERROR: Unable to start the local server thread.") );
- }
+  err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Local UDP", localUdp_thread, 0x1000, (void*)inContext );
+  require_noerr_action( err, exit, app_log("ERROR: Unable to start the local UDP thread.") );
 
  if(inContext->flashContentInRam.appConfig.remoteServerEnable == true){
-   err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Remote Client", remoteTcpClient_thread, 0x300, (void*)inContext );
+   err = mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Remote Client", remoteTcpClient_thread, 0x400, (void*)inContext );
    require_noerr_action( err, exit, app_log("ERROR: Unable to start the remote client thread.") );
  }
 

@@ -2825,7 +2825,7 @@
   <group>
     <name>Application</name>
     <file>
-      <name>$PROJ_DIR$\..\..\..\Demos\COM.MXCHIP.SPP\LocalTcpServer.c</name>
+      <name>$PROJ_DIR$\..\..\..\Demos\COM.MXCHIP.SPP\LocalUdp.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\Demos\COM.MXCHIP.SPP\MICOAppEntrance.c</name>
