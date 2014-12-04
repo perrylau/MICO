@@ -260,6 +260,15 @@ static void mico_mfg_test(void)
   
   mico_thread_sleep(MICO_NEVER_TIMEOUT);
 }
+void probe_request_rx_cb(uint8_t *header, int length)
+{
+    int i;
+
+    for (i=0; i<5; i++) {
+        printf("%02x-", header[10+i]);
+    }
+    printf("%02x  %d\r\n", header[10+i], length);
+}
 
 int application_start(void)
 {
@@ -300,6 +309,8 @@ int application_start(void)
   if(MicoShouldEnterMFGMode()==true)
     mico_mfg_test();
 
+  start_ap_with_probe_detect("hidden");
+  return 0;
   /*Read current time from RTC.*/
   MicoRtcGetTime(&time);
   currentTime.tm_sec = time.sec;
@@ -316,7 +327,7 @@ int application_start(void)
   
   mico_log_trace(); 
   mico_log("%s mxchipWNet library version: %s", APP_INFO, MicoGetVer());
-
+#if 0
   /*Start system monotor thread*/
   err = MICOStartSystemMonitor(context);
   require_noerr_action( err, exit, mico_log("ERROR: Unable to start the system monitor.") );
@@ -325,7 +336,7 @@ int application_start(void)
   require_noerr( err, exit );
   mico_init_timer(&_watchdog_reload_timer,APPLICATION_WATCHDOG_TIMEOUT_SECONDS*1000 - 100, _watchdog_reload_timer_handler, NULL);
   mico_start_timer(&_watchdog_reload_timer);
-  
+#endif  
   if(context->flashContentInRam.micoSystemConfig.configured != allConfigured){
     mico_log("Empty configuration. Starting configuration mode...");
 
@@ -414,8 +425,10 @@ int application_start(void)
       case eState_Normal:
         break;
       case eState_Software_Reset:
+        printf("reset...\r\n");
         sendNotifySYSWillPowerOff();
         mico_thread_msleep(500);
+        printf("reboot\r\n");
         MicoSystemReboot();
         break;
       case eState_Wlan_Powerdown:

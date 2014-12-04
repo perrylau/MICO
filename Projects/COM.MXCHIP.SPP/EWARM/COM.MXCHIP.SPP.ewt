@@ -542,7 +542,13 @@
       <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm3_sdio.a</name>
     </file>
     <file>
+      <name>C:\Users\bobo\Documents\WICED\Wiced-SDK-2.4.0\WICED-SDK\IAR_LIB\Library\mxchipWNet_cm3_sdio.a</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm3_spi.a</name>
+    </file>
+    <file>
+      <name>C:\Users\bobo\Documents\WICED\Wiced-SDK-2.4.0\WICED-SDK\IAR_LIB\Library\mxchipWNet_cm3_spi.a</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm4f_sdio.a</name>

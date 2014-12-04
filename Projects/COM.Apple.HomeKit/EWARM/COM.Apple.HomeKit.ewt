@@ -170,6 +170,90 @@
       </data>
     </settings>
   </configuration>
+  <configuration>
+    <name>FRDM_K64</name>
+    <toolchain>
+      <name>ARM</name>
+    </toolchain>
+    <debug>0</debug>
+    <settings>
+      <name>RuntimeChecking</name>
+      <archiveVersion>0</archiveVersion>
+      <data>
+        <version>2</version>
+        <wantNonLocal>1</wantNonLocal>
+        <debug>0</debug>
+        <option>
+          <name>GenRtcDebugHeap</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcEnableBoundsChecking</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcCheckPtrsNonInstrMem</name>
+          <state>1</state>
+        </option>
+        <option>
+          <name>GenRtcTrackPointerBounds</name>
+          <state>1</state>
+        </option>
+        <option>
+          <name>GenRtcCheckAccesses</name>
+          <state>1</state>
+        </option>
+        <option>
+          <name>GenRtcGenerateEntries</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcNrTrackedPointers</name>
+          <state>1000</state>
+        </option>
+        <option>
+          <name>GenRtcIntOverflow</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcIncUnsigned</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcIntConversion</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcInclExplicit</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcIntShiftOverflow</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcInclUnsignedShiftOverflow</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcUnhandledCase</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcDivByZero</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcEnable</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GenRtcCheckPtrsNonInstrFunc</name>
+          <state>1</state>
+        </option>
+      </data>
+    </settings>
+  </configuration>
   <group>
     <name>Application</name>
     <file>
@@ -215,6 +299,9 @@
         <configuration>
           <name>MICO_EVB_1</name>
         </configuration>
+        <configuration>
+          <name>FRDM_K64</name>
+        </configuration>
       </file>
     </group>
     <group>
@@ -233,27 +320,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\External\GladmanAES\gf128mul.c</name>
-      </file>
-    </group>
-    <group>
-      <name>SHAUtils</name>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\hkdf.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\hmac.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\sha1.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\sha224-256.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\sha384-512.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\usha.c</name>
       </file>
     </group>
     <group>
@@ -283,6 +349,27 @@
         <name>$PROJ_DIR$\..\..\..\External\JSON-C\printbuf.c</name>
       </file>
     </group>
+    <group>
+      <name>SHAUtils</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\hkdf.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\hmac.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\sha1.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\sha224-256.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\sha384-512.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\External\SHAUtils\usha.c</name>
+      </file>
+    </group>
   </group>
   <group>
     <name>Library</name>
@@ -300,6 +387,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm3_spi.a</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm4f_spi.a</name>
+    </file>
+    <file>
+      <name>C:\Users\bobo\Documents\WICED\Wiced-SDK-2.4.0\WICED-SDK\IAR_LIB\Library\mxchipWNet_cm4f_spi.a</name>
     </file>
   </group>
   <group>
@@ -536,6 +629,84 @@
       </group>
       <group>
         <name>Cortex-M4</name>
+        <group>
+          <name>Freescale</name>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\hal\edma.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\flash_kinetis.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\flash_kinetisRamFunc.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\gpio_irq.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\k64_gpio.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\k64_spi.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\ksdk_freertos_lib.a</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\ksdk_platform.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\ksdk_platform.h</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverAdc.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverFlash.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverGpio.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverI2c.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverPwm.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverRng.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverRtc.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverSpi.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverUart.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\MicoDriverWdg.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\EMW1062_Driver\read_wifi_firmware.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\EMW1062_Driver\wlan_platform.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\EMW1062_Driver\SPI\wwd_bus.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\wwd_bus.c</name>
+          </file>
+          <configuration>
+            <name>FRDM_K64</name>
+          </configuration>
+        </group>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\crt0_IAR.c</name>
+        </file>
       </group>
       <group>
         <name>Drivers</name>
@@ -570,6 +741,66 @@
       <file>
         <name>$PROJ_DIR$\..\..\..\Platform\EMW3162\platform_common_config.h</name>
       </file>
+    </group>
+    <group>
+      <name>FRDM_K64</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\boards\board.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\utilities\fsl_debug_console.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\irq_handler\fsl_dspi_irq.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\hal\fsl_edma_common.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\hal\fsl_edma_driver.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\irq_handler\fsl_edma_irq.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\boards\gpio_pins.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\boards\gpio_pins.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\boards\hardware_init.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\utilities\mem_tools.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\boards\pin_mux.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\boards\pin_mux.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\platform.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\startup\startup.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\startup\startup.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\startup\startup_MK64F12.s</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\startup\system_MK64F12.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\Platform\FRDM_K64\startup\system_MK64F12.h</name>
+      </file>
+      <configuration>
+        <name>FRDM_K64</name>
+      </configuration>
     </group>
     <group>
       <name>MICO_EVB_1</name>

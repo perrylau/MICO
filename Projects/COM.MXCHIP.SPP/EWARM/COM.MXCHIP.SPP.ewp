@@ -4038,17 +4038,31 @@
     <file>
       <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm3_sdio.a</name>
       <excluded>
+        <configuration>EMW3162</configuration>
         <configuration>MICO_EVB_1</configuration>
         <configuration>Nucleo_411RE</configuration>
         <configuration>EMW3165</configuration>
       </excluded>
     </file>
     <file>
+      <name>C:\Users\bobo\Documents\WICED\Wiced-SDK-2.4.0\WICED-SDK\IAR_LIB\Library\mxchipWNet_cm3_sdio.a</name>
+      <excluded>
+        <configuration>MICO_EVB_1</configuration>
+      </excluded>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm3_spi.a</name>
       <excluded>
         <configuration>EMW3162</configuration>
+        <configuration>MICO_EVB_1</configuration>
         <configuration>Nucleo_411RE</configuration>
         <configuration>EMW3165</configuration>
+      </excluded>
+    </file>
+    <file>
+      <name>C:\Users\bobo\Documents\WICED\Wiced-SDK-2.4.0\WICED-SDK\IAR_LIB\Library\mxchipWNet_cm3_spi.a</name>
+      <excluded>
+        <configuration>EMW3162</configuration>
       </excluded>
     </file>
     <file>

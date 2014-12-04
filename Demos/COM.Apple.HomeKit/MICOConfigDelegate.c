@@ -367,8 +367,9 @@ OSStatus ConfigIncommingJsonMessage( const char *input, mico_Context_t * const i
   mico_rtos_unlock_mutex(&inContext->flashContentInRam_mutex);
 
   inContext->flashContentInRam.micoSystemConfig.configured = allConfigured;
+  printf("update configuration...\r\n");
   MICOUpdateConfiguration(inContext);
-
+  printf("update configuration done\r\n");
 exit:
   return err; 
 }
