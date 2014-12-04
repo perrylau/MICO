@@ -260,15 +260,6 @@ static void mico_mfg_test(void)
   
   mico_thread_sleep(MICO_NEVER_TIMEOUT);
 }
-void probe_request_rx_cb(uint8_t *header, int length)
-{
-    int i;
-
-    for (i=0; i<5; i++) {
-        printf("%02x-", header[10+i]);
-    }
-    printf("%02x  %d\r\n", header[10+i], length);
-}
 
 int application_start(void)
 {
@@ -309,8 +300,6 @@ int application_start(void)
   if(MicoShouldEnterMFGMode()==true)
     mico_mfg_test();
 
-  start_ap_with_probe_detect("hidden");
-  return 0;
   /*Read current time from RTC.*/
   MicoRtcGetTime(&time);
   currentTime.tm_sec = time.sec;
