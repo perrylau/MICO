@@ -79,6 +79,7 @@ void hardware_init(void) {
   configure_sdhc_pins(0u);
   configure_spi_pins(0u);
   configure_uart_pins(0u);
+  RTC_CR = 0x0000;   //disable RTC OSC
 }
 
 void dbg_uart_init(void)

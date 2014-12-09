@@ -581,6 +581,8 @@ OSStatus _FTCRespondInComingMessage(int fd, HTTPHeader_t* inHeader, mico_Context
           inContext->micoStatus.sys_state = eState_Software_Reset;
           require(inContext->micoStatus.sys_state_change_sem, exit);
           mico_rtos_set_semaphore(&inContext->micoStatus.sys_state_change_sem);
+          sleep(100);
+          return kConnectionErr;
         }
 #ifdef MICO_FLASH_FOR_UPDATE
         else if(strnicmpx( value, valueSize, kMIMEType_MXCHIP_OTA ) == 0){

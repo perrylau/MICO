@@ -417,7 +417,6 @@ int application_start(void)
         printf("reset...\r\n");
         sendNotifySYSWillPowerOff();
         mico_thread_msleep(500);
-        printf("reboot\r\n");
         MicoSystemReboot();
         break;
       case eState_Wlan_Powerdown:

@@ -641,6 +641,9 @@
             <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\flash_kinetisRamFunc.c</name>
           </file>
           <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\fsl_rtc_irq.c</name>
+          </file>
+          <file>
             <name>$PROJ_DIR$\..\..\..\Platform\Common\Cortex-M4\Freescale\gpio_irq.c</name>
           </file>
           <file>
