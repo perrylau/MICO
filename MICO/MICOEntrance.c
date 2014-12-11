@@ -329,6 +329,7 @@ int application_start(void)
   if(context->flashContentInRam.micoSystemConfig.configured != allConfigured){
     mico_log("Empty configuration. Starting configuration mode...");
 
+    wifimgr_debug_enable(1);//Jer
 #if (MICO_CONFIG_MODE == CONFIG_MODE_EASYLINK) || (MICO_CONFIG_MODE == CONFIG_MODE_EASYLINK_WITH_SOFTAP) || (MICO_CONFIG_MODE == CONFIG_MODE_EASYLINK_PLUS)
   err = startEasyLink( context );
   require_noerr( err, exit );

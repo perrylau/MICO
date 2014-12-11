@@ -445,6 +445,10 @@
     #define FSL_FEATURE_UART_HAS_IRQ_EXTENDED_FUNCTIONS (1)
     /* @brief Has low power features (can be enabled in wait mode via register bit C1[DOZEEN] or CTRL[DOZEEN] if the registers are 32-bit wide). */
     #define FSL_FEATURE_UART_HAS_LOW_POWER_UART_SUPPORT (0)
+	/* @brief Lin break detect available (has bit BDH[LBKDIE]). */
+	#define FSL_FEATURE_UART_HAS_LIN_BREAK_DETECT (1)
+	/* @brief UART stops in Wait mode available (has bit C1[UARTSWAI]). */
+	#define FSL_FEATURE_UART_HAS_WAIT_MODE_OPERATION (1)	
     #define FSL_FEATURE_UART_HAS_LOW_POWER_UART_SUPPORTn(x) \
         ((x) == 0 ? (0) : \
         ((x) == 1 ? (0) : \

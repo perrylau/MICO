@@ -51,20 +51,21 @@
 /*! @brief Error codes for the UART driver. */
 typedef enum _uart_status
 {
-    kStatus_UART_Success                  = 0x0U,
-    kStatus_UART_BaudRateCalculationError = 0x1U,
-    kStatus_UART_RxStandbyModeError       = 0x2U, 
-    kStatus_UART_ClearStatusFlagError     = 0x3U, 
-    kStatus_UART_TxNotDisabled            = 0x4U, 
-    kStatus_UART_RxNotDisabled            = 0x5U, 
-    kStatus_UART_TxOrRxNotDisabled        = 0x6U, 
-    kStatus_UART_TxBusy                   = 0x7U, 
-    kStatus_UART_RxBusy                   = 0x8U,  
-    kStatus_UART_NoTransmitInProgress     = 0x9U,
-    kStatus_UART_NoReceiveInProgress      = 0xAU, 
-    kStatus_UART_Timeout                  = 0xBU,
-    kStatus_UART_Initialized              = 0xCU,
-    kStatus_UART_RxCallBackEnd            = 0xDU
+    kStatus_UART_Success                  = 0x00U,
+    kStatus_UART_BaudRateCalculationError = 0x01U,
+    kStatus_UART_RxStandbyModeError       = 0x02U, 
+    kStatus_UART_ClearStatusFlagError     = 0x03U, 
+    kStatus_UART_TxNotDisabled            = 0x04U, 
+    kStatus_UART_RxNotDisabled            = 0x05U, 
+    kStatus_UART_TxOrRxNotDisabled        = 0x06U, 
+    kStatus_UART_TxBusy                   = 0x07U, 
+    kStatus_UART_RxBusy                   = 0x08U,  
+    kStatus_UART_NoTransmitInProgress     = 0x09U,
+    kStatus_UART_NoReceiveInProgress      = 0x0AU, 
+    kStatus_UART_Timeout                  = 0x0BU,
+    kStatus_UART_Initialized              = 0x0CU,
+    kStatus_UART_NoDataToDeal             = 0x0DU,
+    kStatus_UART_RxOverRun                = 0x0EU
 } uart_status_t;
 
 /*!
@@ -191,7 +192,9 @@ typedef enum _uart_status_flag {
     kUartNoiseDetect    = 0U << UART_SHIFT | BP_UART_S1_NF,   /*!< Rxr takes 3 samples of each received bit.  If any of these samples differ, noise flag sets */
     kUartFrameErr       = 0U << UART_SHIFT | BP_UART_S1_FE,   /*!< Frame error flag, sets if logic 0 was detected where stop bit expected */
     kUartParityErr      = 0U << UART_SHIFT | BP_UART_S1_PF,   /*!< If parity enabled, sets upon parity error detection */
+#if FSL_FEATURE_UART_HAS_LIN_BREAK_DETECT 
     kUartLineBreakDetect    = 1U << UART_SHIFT | BP_UART_S2_LBKDIF,  /*!< LIN break detect interrupt flag, sets when LIN break char detected and LIN circuit enabled */
+#endif
     kUartRxActiveEdgeDetect = 1U << UART_SHIFT | BP_UART_S2_RXEDGIF, /*!< Rx pin active edge interrupt flag, sets when active edge detected */
     kUartRxActive           = 1U << UART_SHIFT | BP_UART_S2_RAF,     /*!< Receiver Active Flag (RAF), sets at beginning of valid start bit */
 #if FSL_FEATURE_UART_HAS_EXTENDED_DATA_REGISTER_FLAGS
@@ -212,7 +215,9 @@ typedef enum _uart_status_flag {
  * This structure contains the settings for all of the UART interrupt configurations.
  */
 typedef enum _uart_interrupt {
+#if FSL_FEATURE_UART_HAS_LIN_BREAK_DETECT 
     kUartIntLinBreakDetect  = 0U << UART_SHIFT | BP_UART_BDH_LBKDIE,  /*!< LIN break detect. */
+#endif
     kUartIntRxActiveEdge    = 0U << UART_SHIFT | BP_UART_BDH_RXEDGIE, /*!< RX Active Edge. */
     kUartIntTxDataRegEmpty  = 1U << UART_SHIFT | BP_UART_C2_TIE,      /*!< Transmit data register empty. */
     kUartIntTxComplete      = 1U << UART_SHIFT | BP_UART_C2_TCIE,     /*!< Transmission complete. */
@@ -400,10 +405,7 @@ static inline void UART_HAL_SetBitCountPerChar(uint32_t baseAddr,
  * @param   parityMode Parity mode setting (enabled, disable, odd, even - see
  *                         parity_mode_t struct).
  */
-static inline void UART_HAL_SetParityMode(uint32_t baseAddr, uart_parity_mode_t parityMode)
-{
-    HW_UART_C1_SET(baseAddr, parityMode);
-}
+void UART_HAL_SetParityMode(uint32_t baseAddr, uart_parity_mode_t parityMode);
 
 #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
 /*!
@@ -423,16 +425,41 @@ static inline void UART_HAL_SetStopBitCount(uint32_t baseAddr, uart_stop_bit_cou
 #endif
 
 /*!
- * @brief Configures the transmit and receive inversion control in UART controller.
+ * @brief Enable or disable the transmit inversion control in UART controller.
  *
- * This function allows the user to invert the transmit and receive signals, independently.
- * This function should only be called when the UART is between transmit and receive packets.
+ * This function allows the user to invert the transmit signals.
  *
  * @param   baseAddr UART module base address.
- * @param   rxInvert Enable (true) or disable (false) receive inversion.
- * @param   txInvert Enable (true) or disable (false) transmit inversion.
+ * @param   enable Enable (true) or disable (false) transmit inversion.
  */
-void UART_HAL_SetTxRxInversionCmd(uint32_t baseAddr, bool rxInvertEnable, bool txInvertEnable);
+static inline void UART_HAL_SetTxInversionCmd(uint32_t baseAddr, bool enable)
+{
+    BW_UART_C3_TXINV(baseAddr, enable);
+}
+
+/*!
+ * @brief Enable or disable the receive inversion control in UART controller.
+ *
+ * This function allows the user to invert the receive signals.
+ *
+ * @param   baseAddr UART module base address.
+ * @param   enable Enable (true) or disable (false) receive inversion.
+ */
+static inline void UART_HAL_SetRxInversionCmd(uint32_t baseAddr, bool enable)
+{
+    BW_UART_S2_RXINV(baseAddr, enable);
+}
+
+/*!
+ * @brief  Get UART tx/rx data register address.
+ *
+ * @param   baseAddr UART module base address.
+ * @return  UART tx/rx data register address.
+ */
+static inline uint32_t UART_HAL_GetDataRegAddr(uint32_t baseAddr)
+{
+    return (uint32_t)HW_UART_D_ADDR(baseAddr);
+}
 
 /*@}*/
 
@@ -507,19 +534,28 @@ static inline bool UART_HAL_GetRxDataRegFullIntCmd(uint32_t baseAddr)
     return (bool)BR_UART_C2_RIE(baseAddr);
 }
 
+#if FSL_FEATURE_UART_HAS_DMA_SELECT
 /*!
- * @brief  Configures the UART DMA requests for the Transmitter and Receiver.
+ * @brief  Enable or disable UART DMA request for Transmitter.
  *
- * This function allows the user to configure the transmit data register empty flag to
- * generate an interrupt request (default) or a DMA request.  Similarly, this function
- * allows the user to configure the receive data register full flag to generate an interrupt
- * request (default) or a DMA request.
+ * This function allows the user to configure the receive data register full 
+ * flag to generate a DMA request.
  *
  * @param   baseAddr UART module base address.
- * @param   txDmaConfig Transmit DMA request configuration setting (enable: true /disable: false).
- * @param   rxDmaConfig Receive DMA request configuration setting (enable: true/disable: false).
+ * @param   enable Transmit DMA request configuration setting (enable: true /disable: false).
  */
-void UART_HAL_ConfigureDma(uint32_t baseAddr, bool txDmaConfig, bool rxDmaConfig);
+void UART_HAL_SetTxDmaCmd(uint32_t baseAddr, bool enable);
+
+/*!
+ * @brief  Enable or disable UART DMA request for Receiver.
+ *
+ * This function allows the user to configure the receive data register full 
+ * flag to generate a DMA request.
+ *
+ * @param   baseAddr UART module base address.
+ * @param   enable Receive DMA request configuration setting (enable: true/disable: false).
+ */
+void UART_HAL_SetRxDmaCmd(uint32_t baseAddr, bool enable);
 
 /*!
  * @brief  Gets the UART Transmit DMA request configuration setting.
@@ -527,9 +563,18 @@ void UART_HAL_ConfigureDma(uint32_t baseAddr, bool txDmaConfig, bool rxDmaConfig
  * This function returns the configuration setting of the Transmit DMA request.
  *
  * @param   baseAddr UART module base address.
- * @return   Transmit DMA request configuration setting (enable: true /disable: false).
+ * @return  Transmit DMA request configuration setting (enable: true /disable: false).
  */
-bool UART_HAL_IsTxdmaEnabled(uint32_t baseAddr);
+static inline bool UART_HAL_GetTxDmaCmd(uint32_t baseAddr)
+{
+    return (!BR_UART_C2_TCIE(baseAddr)) 
+#if FSL_FEATURE_UART_IS_SCI
+            && BR_UART_C4_TDMAS(baseAddr)
+#else
+            && BR_UART_C5_TDMAS(baseAddr)
+#endif
+            && BR_UART_C2_TIE(baseAddr);
+}
 
 /*!
  * @brief  Gets the UART Receive DMA request configuration setting.
@@ -537,21 +582,19 @@ bool UART_HAL_IsTxdmaEnabled(uint32_t baseAddr);
  * This function returns the configuration setting of the Receive DMA request.
  *
  * @param   baseAddr UART module base address.
- * @return   Receive DMA request configuration setting (enable: true /disable: false).
+ * @return  Receive DMA request configuration setting (enable: true /disable: false).
  */
-bool UART_HAL_IsRxdmaEnabled(uint32_t baseAddr);
-
-/*!
- * @brief  Get UART tx/rx data register address.
- *
- * This function is used for DMA transfer.
- *
- * @return  UART tx/rx data register address.
- */
-static inline uint32_t UART_HAL_GetDataRegAddr(uint32_t baseAddr)
+static inline bool UART_HAL_GetRxDmaCmd(uint32_t baseAddr)
 {
-    return (uint32_t)HW_UART_D_ADDR(baseAddr);
+    return BR_UART_C2_RIE(baseAddr)
+#if FSL_FEATURE_UART_IS_SCI
+           && BR_UART_C4_RDMAS(baseAddr);
+#else
+           && BR_UART_C5_RDMAS(baseAddr);
+#endif
 }
+
+#endif /* FSL_FEATURE_UART_HAS_DMA_SELECT */
 
 /*@}*/
 
@@ -592,6 +635,29 @@ void  UART_HAL_Getchar(uint32_t baseAddr, uint8_t *readData);
  */
 void  UART_HAL_Getchar9(uint32_t baseAddr, uint16_t *readData);
 
+/*!
+ * @brief Send out multiple bytes of data using polling method.
+ *
+ * This function only supports 8-bit transaction.
+ *
+ * @param   baseAddr UART module base address.
+ * @param   txBuff The buffer pointer which saves the data to be sent.
+ * @param   txSize Size of data to be sent in unit of byte.
+ */
+void UART_HAL_SendDataPolling(uint32_t baseAddr, const uint8_t *txBuff, uint32_t txSize);
+
+/*!
+ * @brief Receive multiple bytes of data using polling method.
+ *
+ * This function only supports 8-bit transaction.
+ *
+ * @param   baseAddr UART module base address.
+ * @param   rxBuff The buffer pointer which saves the data to be received.
+ * @param   rxSize Size of data need to be received in unit of byte.
+ * @return  Whether the transaction is success or rx overrun.
+ */
+uart_status_t UART_HAL_ReceiveDataPolling(uint32_t baseAddr, uint8_t *rxBuff, uint32_t rxSize);
+
 #if FSL_FEATURE_UART_HAS_EXTENDED_DATA_REGISTER_FLAGS
 /*!
  * @brief  Configures the UART bit 10 (if enabled) or bit 9 (if disabled) as the parity bit in the
@@ -605,7 +671,7 @@ void  UART_HAL_Getchar9(uint32_t baseAddr, uint16_t *readData);
  *                disable (false), which configures bit 9 as the parity bit in the serial
  *                transmission.
  */
-static inline void UART_HAL_SetBit10AsParitybit(uint32_t baseAddr, bool enable)
+static inline void UART_HAL_SetBit10AsParityBit(uint32_t baseAddr, bool enable)
 {
     /* to enable the parity bit as the tenth data bit, along with enabling UARTx_C4[M10]
      * need to also enable parity and set UARTx_C1[M] bit
@@ -624,7 +690,7 @@ static inline void UART_HAL_SetBit10AsParitybit(uint32_t baseAddr, bool enable)
  * @return  The configuration setting of bit 10 (true), or bit 9 (false) as the
  *          parity bit in the serial transmission.
  */
-static inline bool UART_HAL_IsBit10SetAsParitybit(uint32_t baseAddr)
+static inline bool UART_HAL_IsBit10SetAsParityBit(uint32_t baseAddr)
 {
     /* to see if the parity bit is set as the tenth data bit,
      * return value of UARTx_C4[M10] */
@@ -640,7 +706,7 @@ static inline bool UART_HAL_IsBit10SetAsParitybit(uint32_t baseAddr)
  * @param   baseAddr UART module base address.
  * @return  The status of the NOISY bit in the UART extended data register.
  */
-static inline bool UART_HAL_IsCurrentDatawordReceivedWithNoise(uint32_t baseAddr)
+static inline bool UART_HAL_IsCurrentDataWithNoise(uint32_t baseAddr)
 {
     /* to see if the current dataword was received with noise,
      * return value of UARTx_ED[NOISY] */
@@ -656,7 +722,7 @@ static inline bool UART_HAL_IsCurrentDatawordReceivedWithNoise(uint32_t baseAddr
  * @param   baseAddr UART module base address.
  * @return  The status of the PARITYE (parity error) bit in the UART extended data register.
  */
-static inline bool UART_HAL_IsCurrentDatawordReceivedWithParityerror(uint32_t baseAddr)
+static inline bool UART_HAL_IsCurrentDataWithParityError(uint32_t baseAddr)
 {
     /* to see if the current dataword was received with parity error,
      * return value of UARTx_ED[PARITYE] */
@@ -672,6 +738,7 @@ static inline bool UART_HAL_IsCurrentDatawordReceivedWithParityerror(uint32_t ba
  * @{
  */
 
+#if FSL_FEATURE_UART_HAS_WAIT_MODE_OPERATION 
 /*!
  * @brief Configures the UART to either operate or cease to operate in WAIT mode.
  *
@@ -701,6 +768,7 @@ static inline uart_operation_config_t UART_HAL_GetWaitModeOperation(uint32_t bas
     /*In CPU wait mode: 0 - uart is enabled; 1 - uart is disabled */
     return (uart_operation_config_t)BR_UART_C1_UARTSWAI(baseAddr);
 }
+#endif /* FSL_FEATURE_UART_HAS_WAIT_MODE_OPERATION */
 
 /*!
  * @brief Configures the UART loopback operation.
@@ -867,6 +935,7 @@ static inline void UART_HAL_SetBreakCharTransmitLength(uint32_t baseAddr,
     BW_UART_S2_BRK13(baseAddr, length);
 }
 
+#if FSL_FEATURE_UART_HAS_LIN_BREAK_DETECT
 /*!
  * @brief  Configures the UART break character detect length.
  *
@@ -885,6 +954,7 @@ static inline void UART_HAL_SetBreakCharDetectLength(uint32_t baseAddr, uart_bre
      * 1 - minimum 13-bit times */
     BW_UART_S2_LBKDE(baseAddr, length);
 }
+#endif /* FSL_FEATURE_UART_HAS_LIN_BREAK_DETECT */
 
 /*!
  * @brief  Configures the UART transmit send break character operation.
@@ -1102,16 +1172,6 @@ static inline bool UART_HAL_IsRxDataRegFull(uint32_t baseAddr)
  * @return An error code or kStatus_UART_Success.
  */
 uart_status_t UART_HAL_ClearStatusFlag(uint32_t baseAddr, uart_status_flag_t statusFlag);
-
-/*!
- * @brief  Clears all UART status flags.
- *
- * This function tries to clear all of the UART status flags.  In some cases, some of the status
- * flags may not get cleared because the condition that set the flag may still exist.
- *
- * @param   baseAddr UART module base address.
- */
-void UART_HAL_ClearAllNonAutoclearStatusFlags(uint32_t baseAddr);
 
 /*@}*/
 
