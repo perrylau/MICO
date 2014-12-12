@@ -10,3 +10,7 @@ Build/*
 *.zip
 *.tmp
 si/*
+csout/*
+tags
+*.py
+*.pyc

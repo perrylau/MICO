@@ -38,7 +38,7 @@ uint32_t  app_stack_size = MICO_DEFAULT_APPLICATION_STACK_SIZE;
 uint32_t  app_stack_size = 1500;
 #endif
 
-
+const uint32_t mico_cpu_clock_hz = 96000000;
 #ifdef  MICO_DEFAULT_TICK_RATE_HZ
 const uint32_t  mico_tick_rate_hz = MICO_DEFAULT_TICK_RATE_HZ;
 #else 

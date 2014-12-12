@@ -28,7 +28,6 @@
 *  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************
 */ 
-
 #include "stdio.h"
 #include "stm32f4xx.h"
 #include "MicoRTOS.h"
@@ -105,3 +104,4 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
  
   while (1);
 }
+

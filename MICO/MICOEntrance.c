@@ -261,6 +261,7 @@ static void mico_mfg_test(void)
   mico_thread_sleep(MICO_NEVER_TIMEOUT);
 }
 
+extern uint8_t EASYLINK_GPIO_Get(void); // Magicoe
 int application_start(void)
 {
   OSStatus err = kNoErr;
@@ -295,7 +296,13 @@ int application_start(void)
   MicoInit();
   MicoSysLed(true);
   mico_log("Free memory %d bytes", MicoGetMemoryInfo()->free_memory) ; 
-
+  if (EASYLINK_GPIO_Get()== 0) {
+     printf("Easylink push\r\n");
+    PlatformEasyLinkButtonLongPressedCallback();
+  }
+  else {
+    printf("Easylink Not push\r\n");
+  }
   /* Enter test mode, call a build-in test function amd output on STDIO */
   if(MicoShouldEnterMFGMode()==true)
     mico_mfg_test();
@@ -317,6 +324,7 @@ int application_start(void)
   mico_log_trace(); 
   mico_log("%s mxchipWNet library version: %s", APP_INFO, MicoGetVer());
 
+#if 0
   /*Start system monotor thread*/
   err = MICOStartSystemMonitor(context);
   require_noerr_action( err, exit, mico_log("ERROR: Unable to start the system monitor.") );
@@ -325,10 +333,12 @@ int application_start(void)
   require_noerr( err, exit );
   mico_init_timer(&_watchdog_reload_timer,APPLICATION_WATCHDOG_TIMEOUT_SECONDS*1000 - 100, _watchdog_reload_timer_handler, NULL);
   mico_start_timer(&_watchdog_reload_timer);
-  
+#endif
+
   if(context->flashContentInRam.micoSystemConfig.configured != allConfigured){
     mico_log("Empty configuration. Starting configuration mode...");
 
+    wifimgr_debug_enable(1);
 #if (MICO_CONFIG_MODE == CONFIG_MODE_EASYLINK) || (MICO_CONFIG_MODE == CONFIG_MODE_EASYLINK_WITH_SOFTAP) || (MICO_CONFIG_MODE == CONFIG_MODE_EASYLINK_PLUS)
   err = startEasyLink( context );
   require_noerr( err, exit );
