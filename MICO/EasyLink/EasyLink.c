@@ -488,7 +488,7 @@ void easylink_thread(void *inContext)
         {
           case kNoErr:
             // Read the rest of the HTTP body if necessary
-            do{
+          //  do{
               err = SocketReadHTTPBody( easylinkClient_fd, httpHeader );
               require_noerr(err, Reconn);
 
@@ -496,9 +496,9 @@ void easylink_thread(void *inContext)
               // Call the HTTPServer owner back with the acquired HTTP header
               err = _FTCRespondInComingMessage( easylinkClient_fd, httpHeader, Context );
               require_noerr( err, Reconn );
-              if(httpHeader->contentLength == 0)
-                break;
-            } while( httpHeader->chunkedData == true || httpHeader->dataEndedbyClose == true);
+          //    if(httpHeader->contentLength == 0)
+          //      break;
+          //  } while( httpHeader->chunkedData == true || httpHeader->dataEndedbyClose == true);
               // Reuse HTTPHeader
               HTTPHeaderClear( httpHeader );
           break;

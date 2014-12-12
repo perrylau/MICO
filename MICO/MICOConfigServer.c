@@ -54,7 +54,8 @@ static OSStatus _LocalConfigRespondInComingMessage(int fd, HTTPHeader_t* inHeade
 
 OSStatus MICOStartConfigServer ( mico_Context_t * const inContext )
 {
-  return mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Config Server", localConfiglistener_thread, STACK_SIZE_LOCAL_CONFIG_SERVER_THREAD, (void*)inContext );
+  return kNoErr; //temp to test nxp
+//  return mico_rtos_create_thread(NULL, MICO_APPLICATION_PRIORITY, "Config Server", localConfiglistener_thread, 0x200, (void*)inContext );
 }
 
 void localConfiglistener_thread(void *inContext)
@@ -140,16 +141,16 @@ void localConfig_thread(void *inFd)
       {
         case kNoErr:
           // Read the rest of the HTTP body if necessary
-          do{
+         // do{
             err = SocketReadHTTPBody( clientFd, httpHeader );
             require_noerr(err, exit);
 
             // Call the HTTPServer owner back with the acquired HTTP header
             err = _LocalConfigRespondInComingMessage( clientFd, httpHeader, Context );
             require_noerr( err, exit ); 
-            if(httpHeader->contentLength == 0)
-              break;
-          } while( httpHeader->chunkedData == true || httpHeader->dataEndedbyClose == true);
+          //  if(httpHeader->contentLength == 0)
+         //     break;
+         // } while( httpHeader->chunkedData == true || httpHeader->dataEndedbyClose == true);
       
           // Reuse HTTPHeader
           HTTPHeaderClear( httpHeader );
@@ -195,7 +196,7 @@ OSStatus _LocalConfigRespondInComingMessage(int fd, HTTPHeader_t* inHeader, mico
   json_object* report = NULL;
   config_log_trace();
 
-#if 1
+#if 0 //1
   /* This is a demo code for http package has chunked data */
   char *tempStr;
   if(inHeader->chunkedData == true){

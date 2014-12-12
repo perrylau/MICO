@@ -223,6 +223,42 @@
   </group>
   <group>
     <name>Library</name>
+    <group>
+      <name>Support</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\AESUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\HTTPUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\MDNSUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\RingBufferUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\SecurityUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\SHAUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\SocketUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\StringUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\TimeUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\TLVUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library\support\URLUtils.c</name>
+      </file>
+    </group>
     <file>
       <name>$PROJ_DIR$\..\..\Library\MICOConfig.c</name>
     </file>
@@ -237,6 +273,51 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\Library\mxchipWNet_cm4f_spi.a</name>
+    </file>
+  </group>
+  <group>
+    <name>Library1127</name>
+    <group>
+      <name>support</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\AESUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\HTTPUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\MDNSUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\RingBufferUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\SecurityUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\SHAUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\SocketUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\StringUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\TimeUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\TLVUtils.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\Library1127\support\URLUtils.c</name>
+      </file>
+    </group>
+    <file>
+      <name>$PROJ_DIR$\..\..\Library1127\MICOConfig.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Library1127\mxchipWNet_cm4f_spi.a</name>
     </file>
   </group>
   <group>
@@ -397,42 +478,6 @@
         </file>
       </group>
     </group>
-  </group>
-  <group>
-    <name>Support</name>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\AESUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\HTTPUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\MDNSUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\RingBufferUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\SecurityUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\SHAUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\SocketUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\StringUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\TimeUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\TLVUtils.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Library\support\URLUtils.c</name>
-    </file>
   </group>
 </project>
 
