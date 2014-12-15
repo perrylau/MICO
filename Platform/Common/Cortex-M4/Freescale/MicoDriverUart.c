@@ -178,18 +178,17 @@ OSStatus internal_uart_init( mico_uart_t uart, const mico_uart_config_t* config,
 
     EDMA_DRV_Init(&state_app, &userConfig_app);    
     UART_DRV_EdmaInit(BOARD_APP_UART_INSTANCE, &uartStateEdma_app, &uartConfig_app); 
-         platform_log("internal uart init.3");
    //  DMA0_IRQHandler();//test
     //uint8_t buff[] = "\n\r++++++++++++++ UART-DMA Test Start ++++++++++++++++++\n\r";//test
    //  uint32_t byteCountBRchange = sizeof(buff); //test
    //  UART_DRV_EdmaSendDataBlocking(BOARD_DEBUG_UART_INSTANCE, buff, byteCountBRchange, 2000); //test
- /*  if (optional_rx_buffer != NULL)
+  if (optional_rx_buffer != NULL)
   {
      //  Note that the ring_buffer should've been initialised first
     uart_interfaces[uart].rx_buffer = optional_rx_buffer;
     uart_interfaces[uart].rx_size   = 0;
     platform_uart_receive_bytes( uart, optional_rx_buffer->buffer, optional_rx_buffer->size, 0 );
-  } */ 
+  }  
 #endif
 
   MicoMcuPowerSaveConfig(true);  
@@ -252,7 +251,7 @@ OSStatus MicoUartSend( mico_uart_t uart, const void* data, uint32_t size )
 
 OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t timeout )
 {
-#if 0 
+// #if 0 
   if (uart_interfaces[uart].rx_buffer != NULL)
   {
     while (size != 0)
@@ -314,9 +313,9 @@ OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t tim
   }
   else
   {
-#endif 
+//#endif 
     return platform_uart_receive_bytes( uart, data, size, timeout );
-//  }
+  }
  // return kNoErr;
 }
 
@@ -325,7 +324,7 @@ static OSStatus platform_uart_receive_bytes( mico_uart_t uart, void* data, uint3
 {
 
   /* Reset DMA transmission result. The result is assigned in interrupt handler */
-  //  uart_interfaces[uart].rx_dma_result = kGeneralErr;
+   uart_interfaces[uart].rx_dma_result = kGeneralErr;
     //uint8_t dmaRxChar[1]=NULL;
     if(UART_DRV_EdmaReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,size, timeout)==kStatus_UART_Success){
          platform_log("uart receive success.");
@@ -354,7 +353,7 @@ static OSStatus platform_uart_receive_bytes( mico_uart_t uart, void* data, uint3
       }
     }    
 #endif
-//    return uart_interfaces[uart].rx_dma_result;
+    return uart_interfaces[uart].rx_dma_result;
   }   
 #endif
   return kNoErr;
