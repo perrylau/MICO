@@ -34,6 +34,7 @@
 #include "fsl_clock_manager.h"
 #include "fsl_interrupt_manager.h"
 #include "fsl_edma_request.h"
+#include "edma.h"
 
 /*******************************************************************************
  * Variables
@@ -142,7 +143,7 @@ uart_status_t UART_DRV_EdmaInit(uint32_t instance,
 
     /*--------------- Setup RX ------------------*/
     /* Request DMA channels for RX FIFO. */
-    EDMA_DRV_RequestChannel(kEDMAAnyChannel, uartRxEdmaRequest,
+    EDMA_DRV_RequestChannel(DMA_CH4, uartRxEdmaRequest,
                             &uartEdmaStatePtr->edmaUartRx);
     EDMA_DRV_InstallCallback(&uartEdmaStatePtr->edmaUartRx,
                     UART_DRV_EdmaRxCallback, (void *)instance);
@@ -169,7 +170,7 @@ uart_status_t UART_DRV_EdmaInit(uint32_t instance,
 
     /*--------------- Setup TX ------------------*/
     /* Request DMA channels for TX FIFO. */
-    EDMA_DRV_RequestChannel(kEDMAAnyChannel, uartTxEdmaRequest,
+    EDMA_DRV_RequestChannel(DMA_CH5, uartTxEdmaRequest,
                             &uartEdmaStatePtr->edmaUartTx);
     EDMA_DRV_InstallCallback(&uartEdmaStatePtr->edmaUartTx,
                     UART_DRV_EdmaTxCallback, (void *)instance); 

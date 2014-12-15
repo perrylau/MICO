@@ -127,7 +127,7 @@ OSStatus mico_platform_init( void )
 void init_platform( void )
 {
     PORT_HAL_SetMuxMode(PORTC_BASE,3u,kPortMuxAsGpio);
-    PORT_HAL_SetMuxMode(PORTC_BASE,4u,kPortMuxAsGpio);
+    //PORT_HAL_SetMuxMode(PORTC_BASE,4u,kPortMuxAsGpio); //PTC_4 to UART1
     GPIO_DRV_OutputPinInit(&ledPins[0]);
     GPIO_DRV_OutputPinInit(&ledPins[1]);
     OSA_Init();

@@ -288,6 +288,14 @@ void configure_uart_pins(uint32_t instance)
       /* Affects PORTB_PCR17 register */
       PORT_HAL_SetMuxMode(PORTB_BASE,17u,kPortMuxAlt3);
       break;
+    case HW_UART1:                      /* UART1 */
+      /* Affects PORTE_PCR0 register */
+      PORT_HAL_SetMuxMode(PORTE_BASE,0u,kPortMuxAlt3);
+     //  PORT_HAL_SetMuxMode(PORTC_BASE,3u,kPortMuxAlt3);// which Alternation?
+      /* Affects PORTE_PCR1 register */
+      PORT_HAL_SetMuxMode(PORTE_BASE,1u,kPortMuxAlt3);
+      // PORT_HAL_SetMuxMode(PORTC_BASE,4u,kPortMuxAlt3);
+      break;
     case HW_UART4:                      /* UART4 */
       /* Affects PORTC_PCR14 register */
       PORT_HAL_SetMuxMode(PORTC_BASE,14u,kPortMuxAlt3);

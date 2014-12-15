@@ -92,6 +92,13 @@ typedef struct
 
 static uart_interface_t uart_interfaces[NUMBER_OF_UART_INTERFACES];
 
+
+static edma_state_t state_app; 
+static edma_user_config_t userConfig_app; 
+static uart_edma_state_t uartStateEdma_app;    
+static uart_edma_user_config_t uartConfig_app;
+
+
 #ifndef NO_MICO_RTOS
 static mico_uart_t current_uart;
 #endif
@@ -131,10 +138,10 @@ OSStatus MicoStdioUartInitialize( const mico_uart_config_t* config, ring_buffer_
 OSStatus internal_uart_init( mico_uart_t uart, const mico_uart_config_t* config, ring_buffer_t* optional_rx_buffer )
 {
     // uart_state_t uartState;
-    edma_state_t state; 
+    /*edma_state_t state; 
     edma_user_config_t userConfig; 
     uart_edma_state_t uartStateEdma;    
-    uart_edma_user_config_t uartConfig;
+    uart_edma_user_config_t uartConfig;*/
     uint32_t i;
          platform_log("internal uart init.");
 /* #ifndef NO_MICO_RTOS
@@ -151,7 +158,7 @@ OSStatus internal_uart_init( mico_uart_t uart, const mico_uart_config_t* config,
   //       CLOCK_SYS_EnablePortClock(i);
   //   }
     /* Configure the UART TX/RX pins */
-    configure_uart_pins(BOARD_DEBUG_UART_INSTANCE);
+    configure_uart_pins(BOARD_APP_UART_INSTANCE);
 /* #ifndef NO_MICO_RTOS
   if(config->flags & UART_WAKEUP_ENABLE){
     current_uart = uart;
@@ -161,17 +168,17 @@ OSStatus internal_uart_init( mico_uart_t uart, const mico_uart_config_t* config,
 #endif*/ 
 #if defined(USE_DMA_UART)
 	//OSA_Init();
-    userConfig.chnArbitration = kEDMAChnArbitrationRoundrobin;
-    userConfig.notHaltOnError = false;
+    userConfig_app.chnArbitration = kEDMAChnArbitrationRoundrobin;
+    userConfig_app.notHaltOnError = false;
 
-    uartConfig.bitCountPerChar = kUart8BitsPerChar;
-    uartConfig.parityMode = kUartParityDisabled;
-    uartConfig.stopBitCount = kUartOneStopBit;
-    uartConfig.baudRate = 115200;
+    uartConfig_app.bitCountPerChar = kUart8BitsPerChar;
+    uartConfig_app.parityMode = kUartParityDisabled;
+    uartConfig_app.stopBitCount = kUartOneStopBit;
+    uartConfig_app.baudRate = 115200;
 
-    EDMA_DRV_Init(&state, &userConfig);    
+    EDMA_DRV_Init(&state_app, &userConfig_app);    
    // UART_DRV_Init(BOARD_DEBUG_UART_INSTANCE, &uartState, &uartConfig);//
-    UART_DRV_EdmaInit(BOARD_DEBUG_UART_INSTANCE, &uartStateEdma, &uartConfig); 
+    UART_DRV_EdmaInit(BOARD_APP_UART_INSTANCE, &uartStateEdma_app, &uartConfig_app); 
          platform_log("internal uart init.3");
    //  DMA0_IRQHandler();//test
     //uint8_t buff[] = "\n\r++++++++++++++ UART-DMA Test Start ++++++++++++++++++\n\r";//test
@@ -193,7 +200,7 @@ OSStatus internal_uart_init( mico_uart_t uart, const mico_uart_config_t* config,
 OSStatus MicoUartFinalize( mico_uart_t uart )
 {
   
-    UART_DRV_EdmaDeinit(BOARD_DEBUG_UART_INSTANCE);    
+    UART_DRV_EdmaDeinit(BOARD_APP_UART_INSTANCE);    
     EDMA_DRV_Deinit();    
 /* #ifndef NO_MICO_RTOS
   mico_rtos_deinit_semaphore(&uart_interfaces[uart].rx_complete);
@@ -210,7 +217,7 @@ OSStatus MicoUartSend( mico_uart_t uart, const void* data, uint32_t size )
          platform_log("==== uart send.");
 //  
   MicoMcuPowerSaveConfig(false);  
-  UART_DRV_EdmaSendData(BOARD_DEBUG_UART_INSTANCE, data, 1);
+  UART_DRV_EdmaSendData(BOARD_APP_UART_INSTANCE, data, size);
 //  
 //  uart_mapping[uart].tx_dma_stream->CR  &= ~(uint32_t) DMA_SxCR_CIRC;
 //  uart_mapping[uart].tx_dma_stream->NDTR = size;
@@ -308,9 +315,8 @@ static OSStatus platform_uart_receive_bytes( mico_uart_t uart, void* data, uint3
 
   /* Reset DMA transmission result. The result is assigned in interrupt handler */
   //  uart_interfaces[uart].rx_dma_result = kGeneralErr;
-         platform_log("uart receive .");
     //uint8_t dmaRxChar[1]=NULL;
-    if(UART_DRV_EdmaReceiveDataBlocking(BOARD_DEBUG_UART_INSTANCE, data,size, timeout)==kStatus_UART_Success){
+    if(UART_DRV_EdmaReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,size, timeout)==kStatus_UART_Success){
          platform_log("uart receive success.");
     }
     //if(UART_DRV_EdmaReceiveData(BOARD_DEBUG_UART_INSTANCE, data, size)==kStatus_UART_Success){}

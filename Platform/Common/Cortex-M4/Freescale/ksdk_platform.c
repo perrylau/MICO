@@ -171,6 +171,7 @@ void init_architecture( void )
    mico_rtos_unlock_mutex ( &stdio_rx_mutex );
 #endif
    dbg_uart_init();
+  // MicoStdioUartInitialize(&stdio_uart_config,NULL);
 #endif
 }
 

@@ -43,6 +43,9 @@
     #define BOARD_DEBUG_UART_INSTANCE   0
     #define BOARD_DEBUG_UART_BASEADDR   UART0_BASE
 #endif
+
+#define BOARD_APP_UART_INSTANCE         1
+
 #ifndef BOARD_DEBUG_UART_BAUD
     #define BOARD_DEBUG_UART_BAUD       115200
 #endif
