@@ -170,7 +170,7 @@ void init_architecture( void )
    mico_rtos_init_mutex( &stdio_rx_mutex );
    mico_rtos_unlock_mutex ( &stdio_rx_mutex );
 #endif
-   dbg_uart_init();
+   //dbg_uart_init(); //Jer disable it to test SPP mess 
   // MicoStdioUartInitialize(&stdio_uart_config,NULL);
 #endif
 }
