@@ -58,7 +58,7 @@
 /******************************************************
 *                 Type Definitions
 ******************************************************/
-#define ADD_OS_CODE 1 //test #macro
+#define ADD_OS_CODE 0 //1 //test #macro
 #define USE_DMA_UART
 /* Ring buffer size */
 #define UART_RB_SIZE 128
@@ -251,7 +251,7 @@ OSStatus MicoUartSend( mico_uart_t uart, const void* data, uint32_t size )
 
 OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t timeout )
 {
-// #if 0 
+#if 0 
   if (uart_interfaces[uart].rx_buffer != NULL)
   {
     while (size != 0)
@@ -263,10 +263,11 @@ OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t tim
       {
         /* Set rx_size and wait in rx_complete semaphore until data reaches rx_size or timeout occurs */
         uart_interfaces[uart].rx_size = transfer_size;
-        
+#if ADD_OS_CODE
 #ifndef NO_MICO_RTOS
         if ( mico_rtos_get_semaphore( &uart_interfaces[uart].rx_complete, timeout) != kNoErr )
         {
+         platform_log("uart receive 01"); 
           uart_interfaces[uart].rx_size = 0;
           return kTimeoutErr;
         }
@@ -280,7 +281,8 @@ OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t tim
           }
         }
 #endif
-        
+#endif
+         platform_log("uart receive 02"); 
         /* Reset rx_size to prevent semaphore being set while nothing waits for the data */
         uart_interfaces[uart].rx_size = 0;
       }
@@ -293,6 +295,7 @@ OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t tim
         uint8_t* available_data;
         uint32_t bytes_available;
         
+         platform_log("uart receive 03"); 
         ring_buffer_get_data( uart_interfaces[uart].rx_buffer, &available_data, &bytes_available );
         bytes_available = MIN( bytes_available, transfer_size );
         memcpy( data, available_data, bytes_available );
@@ -304,18 +307,20 @@ OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t tim
     
     if ( size != 0 )
     {
+         platform_log("uart receive 04"); 
       return kGeneralErr;
     }
     else
     {
+         platform_log("uart receive 05"); 
       return kNoErr;
     }
   }
   else
   {
-//#endif 
+#endif 
     return platform_uart_receive_bytes( uart, data, size, timeout );
-  }
+//  }
  // return kNoErr;
 }
 
@@ -324,9 +329,9 @@ static OSStatus platform_uart_receive_bytes( mico_uart_t uart, void* data, uint3
 {
 
   /* Reset DMA transmission result. The result is assigned in interrupt handler */
-   uart_interfaces[uart].rx_dma_result = kGeneralErr;
-    //uint8_t dmaRxChar[1]=NULL;
-    if(UART_DRV_EdmaReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,size, timeout)==kStatus_UART_Success){
+  //  uart_interfaces[uart].rx_dma_result = kGeneralErr;
+   //  if(UART_DRV_EdmaReceiveData(BOARD_DEBUG_UART_INSTANCE, data, size)==kStatus_UART_Success){
+   if(UART_DRV_EdmaReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,size, timeout)==kStatus_UART_Success){
          platform_log("uart receive success.");
 #if ADD_OS_CODE
         #ifndef NO_MICO_RTOS

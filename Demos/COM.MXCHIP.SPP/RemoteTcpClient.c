@@ -116,6 +116,7 @@ void remoteTcpClient_thread(void *inContext)
       /*recv UART data using loopback fd*/
       if (FD_ISSET( remoteTcpClient_loopBack_fd, &readfds) ) {
         len = recv( remoteTcpClient_loopBack_fd, outDataBuffer, wlanBufferLen, 0 );
+          client_log("Remote client recv&send= %x", outDataBuffer);
         SocketSend( remoteTcpClient_fd, outDataBuffer, len );
       }
       

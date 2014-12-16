@@ -140,12 +140,14 @@ void localTcpClient_thread(void *inFd)
     /*recv UART data using loopback fd*/
     if (FD_ISSET( clientLoopBackFd, &readfds )) {
       len = recv( clientLoopBackFd, outDataBuffer, wlanBufferLen, 0 );
+        server_log("Local loopback recv&send=%x",outDataBuffer);
       SocketSend( clientFd, outDataBuffer, len );
     }
 
     /*Read data from tcp clients and process these data using HA protocol */ 
     if (FD_ISSET(clientFd, &readfds)) {
       len = recv(clientFd, inDataBuffer, wlanBufferLen, 0);
+	  server_log("Local tcp clients recv&send=%x",inDataBuffer);
       require_action_quiet(len>0, exit, err = kConnectionErr);
       sppWlanCommandProcess(inDataBuffer, &len, clientFd, Context);
     }
