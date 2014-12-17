@@ -68,10 +68,10 @@
 /******************************************************
 *               Function Declarations
 ******************************************************/
-extern WEAK void PlatformEasyLinkButtonClickedCallback(void);
-extern WEAK void PlatformStandbyButtonClickedCallback(void);
-extern WEAK void PlatformEasyLinkButtonLongPressedCallback(void);
-extern WEAK void bootloader_start(void);
+extern void PlatformEasyLinkButtonClickedCallback(void);
+extern void PlatformStandbyButtonClickedCallback(void);
+extern void PlatformEasyLinkButtonLongPressedCallback(void);
+extern void bootloader_start(void);
 
 /******************************************************
 *               Variables Definitions
