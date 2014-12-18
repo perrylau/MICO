@@ -281,6 +281,9 @@ static void mico_mfg_test(void)
   mico_thread_sleep(MICO_NEVER_TIMEOUT);
 }
 
+#ifdef CHIP_LPC540XX  
+extern uint8_t EASYLINK_GPIO_Get(void); // Magicoe
+#endif
 int application_start(void)
 {
   OSStatus err = kNoErr;
@@ -315,7 +318,15 @@ int application_start(void)
   MicoInit();
   MicoSysLed(true);
   mico_log("Free memory %d bytes", MicoGetMemoryInfo()->free_memory) ; 
-
+#ifdef CHIP_LPC540XX  
+  if (EASYLINK_GPIO_Get()== 0) {
+     printf("Easylink push\r\n");
+    PlatformEasyLinkButtonLongPressedCallback();
+  }
+  else {
+    printf("Easylink Not push\r\n");
+  }
+#endif
   /* Enter test mode, call a build-in test function amd output on STDIO */
   if(MicoShouldEnterMFGMode()==true)
     mico_mfg_test();
