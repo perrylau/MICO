@@ -7212,6 +7212,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\Library1127\mxchipWNet_cm4f_spi.a</name>
+      <excluded>
+        <configuration>FRDM_K64F_SPP</configuration>
+      </excluded>
     </file>
   </group>
   <group>
