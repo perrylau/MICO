@@ -28,6 +28,7 @@ extern "C"
 #define WEAK __weak
 #endif /* ifdef __GNUC__ */
 
+#define BOARD_LPCXPRESSO_54102
     
 typedef enum
 {

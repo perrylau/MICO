@@ -805,6 +805,9 @@
     <file>
       <name>$PROJ_DIR$\..\..\..\Library\mxchipWNet_cm4f_spi.a</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\Library1127\mxchipWNet_cm4f_spi.a</name>
+    </file>
   </group>
   <group>
     <name>MICO</name>
@@ -1518,77 +1521,80 @@
       <group>
         <name>NXP</name>
         <group>
-          <name>EMW1062</name>
+          <name>LPC54xx</name>
+          <group>
+            <name>EMW1062</name>
+            <file>
+              <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\read_wifi_firmware.c</name>
+            </file>
+            <file>
+              <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\SDIO\wlan_bus.c</name>
+            </file>
+            <file>
+              <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\wlan_platform.c</name>
+            </file>
+            <file>
+              <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\SPI\wwd_bus.c</name>
+            </file>
+          </group>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\read_wifi_firmware.c</name>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\NXP_drivers\board_nxp_lpcxpresso_54000.a</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\SDIO\wlan_bus.c</name>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\NXP_drivers\chip_540xx_lib.a</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\wlan_platform.c</name>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\gpio_irq.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\EMW1062_Driver\SPI\wwd_bus.c</name>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\hardfault.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\lpc1800_freertos.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\lpc_mico.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverAdc.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverFlash.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverGpio.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverI2c.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverPwm.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverRng.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverRtc.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverSpi.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverUart.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverWdg.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\nxp_platform.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\platform_api.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\rtc.c</name>
           </file>
         </group>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\NXP_drivers\board_nxp_lpcxpresso_54000.a</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\NXP_drivers\chip_540xx_lib.a</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\gpio_irq.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\hardfault.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\lpc1800_freertos.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\lpc_mico.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverAdc.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverFlash.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverGpio.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverI2c.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverPwm.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverRng.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverRtc.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverSpi.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverUart.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\MicoDriverWdg.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\nxp_platform.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\platform_api.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\Platform\vendor\nxp\LPC54xx\rtc.c</name>
-        </file>
       </group>
       <group>
         <name>ST</name>
