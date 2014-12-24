@@ -41,7 +41,7 @@ extern "C"
 /******************************************************
  *                      Macros
  ******************************************************/
-
+#define FRDM_K64F
 /******************************************************
  *                    Constants
  ******************************************************/
@@ -310,8 +310,6 @@ typedef enum
 
 #define RestoreDefault_TimeOut          3000  /**< Restore default and start easylink after 
                                                    press down EasyLink button for 3 seconds. */
-
-#define TRACE 1
 
 #ifdef __cplusplus
 } /*extern "C" */
