@@ -71,7 +71,7 @@ const platform_pin_mapping_t gpio_mapping[] =
   [WL_GPIO0]                          = {GPIO_MAKE_PIN(HW_GPIOE, 24)},
   [WL_GPIO1]                          = {GPIO_PINS_OUT_OF_RANGE},
   [WL_REG_RESERVED]                   = {GPIO_PINS_OUT_OF_RANGE},
-  [WL_RESET]                          = {GPIO_MAKE_PIN(HW_GPIOC,  3)},
+  [WL_RESET]                          = {GPIO_MAKE_PIN(HW_GPIOC,  16)},
   [MICO_SYS_LED]                      = {kGpioLED1}, 
   [MICO_RF_LED]                       = {kGpioLED2},
   [BOOT_SEL]                          = {GPIO_PINS_OUT_OF_RANGE}, 
@@ -127,7 +127,7 @@ OSStatus mico_platform_init( void )
 void init_platform( void )
 {
     PORT_HAL_SetMuxMode(PORTC_BASE,3u,kPortMuxAsGpio);
-    //PORT_HAL_SetMuxMode(PORTC_BASE,4u,kPortMuxAsGpio); //PTC_4 to UART1
+    PORT_HAL_SetMuxMode(PORTC_BASE,4u,kPortMuxAsGpio);
     GPIO_DRV_OutputPinInit(&ledPins[0]);
     GPIO_DRV_OutputPinInit(&ledPins[1]);
     OSA_Init();
