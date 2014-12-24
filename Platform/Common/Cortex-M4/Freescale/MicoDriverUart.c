@@ -292,6 +292,7 @@ OSStatus MicoUartRecv( mico_uart_t uart, void* data, uint32_t size, uint32_t tim
          platform_log("uart receive %x.",p->rxIrqSync); 
             mico_rtos_set_semaphore(&uart_interfaces[uart].rx_complete); //OSA_SemaPost(&uartState->rxIrqSync);
         }*/
+
         if ( mico_rtos_get_semaphore( &uart_interfaces[uart].rx_complete, timeout) != kNoErr )
         {
          platform_log("uart receive 01"); 
