@@ -235,9 +235,11 @@ OSStatus MicoUartSend( mico_uart_t uart, const void* data, uint32_t size )
 //  
   MicoMcuPowerSaveConfig(false);  
 #ifdef  UART_IRQ_APP
-  UART_DRV_SendData(BOARD_APP_UART_INSTANCE, data, size);
+  if (UART_DRV_SendData(BOARD_APP_UART_INSTANCE, data, size) == kStatus_UART_Success){
 #else 
   if (UART_DRV_EdmaSendData(BOARD_APP_UART_INSTANCE, data, size) == kStatus_UART_Success){
+#endif
+    
 #if ADD_OS_CODE
         #ifndef NO_MICO_RTOS
             mico_rtos_set_semaphore( &uart_interfaces[ uart ].tx_complete );
@@ -245,8 +247,7 @@ OSStatus MicoUartSend( mico_uart_t uart, const void* data, uint32_t size )
             uart_interfaces[ uart ].rx_complete = true;
         #endif
 #endif
-  } 
-#endif 
+  }  
 //  
 //  uart_mapping[uart].tx_dma_stream->CR  &= ~(uint32_t) DMA_SxCR_CIRC;
 //  uart_mapping[uart].tx_dma_stream->NDTR = size;
@@ -362,11 +363,11 @@ static OSStatus platform_uart_receive_bytes( mico_uart_t uart, void* data, uint3
    uart_interfaces[uart].rx_dma_result = kGeneralErr;
 #endif
 #ifdef UART_IRQ_APP   
-   retVal = UART_DRV_ReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,size, timeout);
+   retVal = UART_DRV_ReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,128, timeout);
   // if(UART_DRV_ReceiveData(BOARD_APP_UART_INSTANCE, data,size )==kStatus_UART_Success){  
 #else   
   //  if(UART_DRV_EdmaReceiveData(BOARD_DEBUG_UART_INSTANCE, data, size)==kStatus_UART_Success){
-   retVal = UART_DRV_EdmaReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,size, timeout);//
+   retVal = UART_DRV_EdmaReceiveDataBlocking(BOARD_APP_UART_INSTANCE, data,128, timeout);//
 #endif
    if(retVal == kStatus_UART_Success) { 
 		 platform_log("uart receive success.date=%s. ",(char *)data);
