@@ -1,0 +1,9 @@
+.\output\micoconfig.o: ..\..\..\Library\MICOConfig.c
+.\output\micoconfig.o: ..\..\..\Library\support\Common.h
+.\output\micoconfig.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\output\micoconfig.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\output\micoconfig.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\micoconfig.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\micoconfig.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\micoconfig.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\output\micoconfig.o: ..\..\..\Demos\COM.MXCHIP.SPP\MicoDefaults.h

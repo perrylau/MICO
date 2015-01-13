@@ -1,0 +1,16 @@
+.\output\stringutils.o: ..\..\..\Library\support\StringUtils.c
+.\output\stringutils.o: ..\..\..\Library\support\StringUtils.h
+.\output\stringutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h
+.\output\stringutils.o: ..\..\..\Library\support\Common.h
+.\output\stringutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\output\stringutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\output\stringutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\stringutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\stringutils.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\stringutils.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\output\stringutils.o: ..\..\..\Library\support\Debug.h
+.\output\stringutils.o: ..\..\..\include\MicoRTOS.h
+.\output\stringutils.o: ..\..\..\Demos\COM.MXCHIP.SPP\MicoDefaults.h
+.\output\stringutils.o: ..\..\..\Platform\EMW3162\platform.h
+.\output\stringutils.o: ..\..\..\Platform\EMW3162\platform_common_config.h
+.\output\stringutils.o: ..\..\..\Platform\Common\Cortex-M3\platform_assert.h

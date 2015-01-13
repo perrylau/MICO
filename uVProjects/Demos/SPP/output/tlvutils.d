@@ -1,0 +1,15 @@
+.\output\tlvutils.o: ..\..\..\Library\support\TLVUtils.c
+.\output\tlvutils.o: ..\..\..\Library\support\TLVUtils.h
+.\output\tlvutils.o: ..\..\..\Library\support\Common.h
+.\output\tlvutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\output\tlvutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\output\tlvutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\tlvutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\tlvutils.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\tlvutils.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\output\tlvutils.o: ..\..\..\Library\support\Debug.h
+.\output\tlvutils.o: ..\..\..\include\MicoRTOS.h
+.\output\tlvutils.o: ..\..\..\Demos\COM.MXCHIP.SPP\MicoDefaults.h
+.\output\tlvutils.o: ..\..\..\Platform\EMW3162\platform.h
+.\output\tlvutils.o: ..\..\..\Platform\EMW3162\platform_common_config.h
+.\output\tlvutils.o: ..\..\..\Platform\Common\Cortex-M3\platform_assert.h

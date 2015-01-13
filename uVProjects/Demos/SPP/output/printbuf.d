@@ -1,0 +1,9 @@
+.\output\printbuf.o: ..\..\..\External\JSON-C\printbuf.c
+.\output\printbuf.o: ..\..\..\External\JSON-C\config.h
+.\output\printbuf.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\printbuf.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\printbuf.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\printbuf.o: C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h
+.\output\printbuf.o: ..\..\..\External\JSON-C\bits.h
+.\output\printbuf.o: ..\..\..\External\JSON-C\debug.h
+.\output\printbuf.o: ..\..\..\External\JSON-C\printbuf.h

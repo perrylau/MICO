@@ -1,0 +1,17 @@
+.\output\shautils.o: ..\..\..\Library\support\SHAUtils.c
+.\output\shautils.o: ..\..\..\Library\support\SHAUtils.h
+.\output\shautils.o: ..\..\..\Library\support\Common.h
+.\output\shautils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\output\shautils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\output\shautils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\shautils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\shautils.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\shautils.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\output\shautils.o: ..\..\..\Library\support\Debug.h
+.\output\shautils.o: ..\..\..\include\MicoRTOS.h
+.\output\shautils.o: ..\..\..\Demos\COM.MXCHIP.SPP\MicoDefaults.h
+.\output\shautils.o: ..\..\..\Platform\EMW3162\platform.h
+.\output\shautils.o: ..\..\..\Platform\EMW3162\platform_common_config.h
+.\output\shautils.o: ..\..\..\Platform\Common\Cortex-M3\platform_assert.h
+.\output\shautils.o: ..\..\..\Library\support\StringUtils.h
+.\output\shautils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h

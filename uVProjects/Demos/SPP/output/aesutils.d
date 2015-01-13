@@ -1,0 +1,17 @@
+.\output\aesutils.o: ..\..\..\Library\support\AESUtils.c
+.\output\aesutils.o: ..\..\..\Library\support\AESUtils.h
+.\output\aesutils.o: ..\..\..\Library\support\Common.h
+.\output\aesutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\output\aesutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\output\aesutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\aesutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\aesutils.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\aesutils.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\output\aesutils.o: ..\..\..\Library\support\Debug.h
+.\output\aesutils.o: ..\..\..\include\MicoRTOS.h
+.\output\aesutils.o: ..\..\..\Demos\COM.MXCHIP.SPP\MicoDefaults.h
+.\output\aesutils.o: ..\..\..\Platform\EMW3162\platform.h
+.\output\aesutils.o: ..\..\..\Platform\EMW3162\platform_common_config.h
+.\output\aesutils.o: ..\..\..\Platform\Common\Cortex-M3\platform_assert.h
+.\output\aesutils.o: ..\..\..\Library\support\SecurityUtils.h
+.\output\aesutils.o: ..\..\..\include\MICOAES.h

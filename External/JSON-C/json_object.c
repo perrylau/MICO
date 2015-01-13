@@ -26,9 +26,10 @@
 #include "json_util.h"
 
 #if !HAVE_STRNDUP
-  char* strndup(const char* str, size_t n);
+char* strndup(const char* str, size_t n);
 #endif /* !HAVE_STRNDUP */
 
+char* strdup(const char* str);
 /* #define REFCOUNT_DEBUG 1 */
 
 const char *json_number_chars = "0123456789.+-eE";

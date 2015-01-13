@@ -1,0 +1,15 @@
+.\output\ringbufferutils.o: ..\..\..\Library\support\RingBufferUtils.c
+.\output\ringbufferutils.o: ..\..\..\Library\support\RingBufferUtils.h
+.\output\ringbufferutils.o: ..\..\..\Library\support\Common.h
+.\output\ringbufferutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\output\ringbufferutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\output\ringbufferutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\ringbufferutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\ringbufferutils.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\ringbufferutils.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\output\ringbufferutils.o: ..\..\..\Library\support\Debug.h
+.\output\ringbufferutils.o: ..\..\..\include\MicoRTOS.h
+.\output\ringbufferutils.o: ..\..\..\Demos\COM.MXCHIP.SPP\MicoDefaults.h
+.\output\ringbufferutils.o: ..\..\..\Platform\EMW3162\platform.h
+.\output\ringbufferutils.o: ..\..\..\Platform\EMW3162\platform_common_config.h
+.\output\ringbufferutils.o: ..\..\..\Platform\Common\Cortex-M3\platform_assert.h

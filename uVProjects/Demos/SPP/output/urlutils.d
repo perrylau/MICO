@@ -1,0 +1,17 @@
+.\output\urlutils.o: ..\..\..\Library\support\URLUtils.c
+.\output\urlutils.o: ..\..\..\Library\support\Common.h
+.\output\urlutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\output\urlutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\output\urlutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\output\urlutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\output\urlutils.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\output\urlutils.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+.\output\urlutils.o: ..\..\..\Library\support\Debug.h
+.\output\urlutils.o: ..\..\..\include\MicoRTOS.h
+.\output\urlutils.o: ..\..\..\Demos\COM.MXCHIP.SPP\MicoDefaults.h
+.\output\urlutils.o: ..\..\..\Platform\EMW3162\platform.h
+.\output\urlutils.o: ..\..\..\Platform\EMW3162\platform_common_config.h
+.\output\urlutils.o: ..\..\..\Platform\Common\Cortex-M3\platform_assert.h
+.\output\urlutils.o: ..\..\..\Library\support\StringUtils.h
+.\output\urlutils.o: C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h
+.\output\urlutils.o: ..\..\..\Library\support\URLUtils.h
