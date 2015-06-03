@@ -2,6 +2,7 @@
 #include "MICODefine.h"
 #include "MICOCli.h"
 #include "stdarg.h"
+#include "platform_config.h"
 
 #ifdef MICO_CLI_ENABLE
 int cli_printf(const char *msg, ...);
@@ -364,6 +365,7 @@ static void get_version(char *pcWriteBuffer, int xWriteBufferLen,int argc, char 
   cmd_printf("SDK version: %s\r\n", MicoGetVer());
   cmd_printf("Firmware version: %s\r\n", FIRMWARE_REVISION);
   cmd_printf("Application information: %s\r\n", APP_INFO);
+  cmd_printf("Bootloader version: %s\r\n", mico_get_bootloader_ver());
   
   memset(ver, 0, sizeof(ver));
   ret = MicoGetRfVer(ver, sizeof(ver));

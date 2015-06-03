@@ -30,24 +30,20 @@
 ******************************************************************************
 */ 
 
-#include "stdio.h"
-#include "string.h"
-
 #include "MICOPlatform.h"
 #include "platform.h"
-#include "stm32f4xx_platform.h"
-#include "platform_common_config.h"
+#include "platform_config.h"
+#include "platform_peripheral.h"
+#include "platform_config.h"
 #include "PlatformLogging.h"
+#include "spi_flash_platform_interface.h"
+#include "wlan_platform_common.h"
+
+
 
 /******************************************************
 *                      Macros
 ******************************************************/
-
-#ifdef __GNUC__
-#define WEAK __attribute__ ((weak))
-#elif defined ( __IAR_SYSTEMS_ICC__ )
-#define WEAK __weak
-#endif /* ifdef __GNUC__ */
 
 /******************************************************
 *                    Constants
@@ -69,7 +65,6 @@
 *               Function Declarations
 ******************************************************/
 extern WEAK void PlatformEasyLinkButtonClickedCallback(void);
-extern WEAK void PlatformStandbyButtonClickedCallback(void);
 extern WEAK void PlatformEasyLinkButtonLongPressedCallback(void);
 extern WEAK void bootloader_start(void);
 
@@ -84,167 +79,246 @@ extern WEAK void bootloader_start(void);
 static uint32_t _default_start_time = 0;
 static mico_timer_t _button_EL_timer;
 
-const platform_pin_mapping_t gpio_mapping[] =
+const platform_gpio_t platform_gpio_pins[] =
 {
   /* Common GPIOs for internal use */
-  [WL_GPIO1]                          = {GPIOA,  0,  RCC_AHB1Periph_GPIOA},
-  [WL_RESET]                          = {GPIOB,  14, RCC_AHB1Periph_GPIOB},
-  [MICO_SYS_LED]                      = {GPIOB,  10, RCC_AHB1Periph_GPIOB}, 
-  [MICO_RF_LED]                       = {GPIOA,  4,  RCC_AHB1Periph_GPIOA}, 
-  [BOOT_SEL]                          = {GPIOB,  1,  RCC_AHB1Periph_GPIOB}, 
-  [MFG_SEL]                           = {GPIOB,  0,  RCC_AHB1Periph_GPIOB}, 
-  [EasyLink_BUTTON]                   = {GPIOA,  1,  RCC_AHB1Periph_GPIOA}, 
-  [STDIO_UART_RX]                     = {GPIOA,  3,  RCC_AHB1Periph_GPIOA},  
-  [STDIO_UART_TX]                     = {GPIOA,  2,  RCC_AHB1Periph_GPIOA},  
+  [MICO_SYS_LED]                      = { GPIOB,  10 }, 
+  [MICO_RF_LED]                       = { GPIOA,  4 }, 
+  [BOOT_SEL]                          = { GPIOB,  1 }, 
+  [MFG_SEL]                           = { GPIOB,  0 }, 
+  [EasyLink_BUTTON]                   = { GPIOA,  1 }, 
+  [STDIO_UART_RX]                     = { GPIOA,  3 },  
+  [STDIO_UART_TX]                     = { GPIOA,  2 },  
+  [FLASH_PIN_SPI_CS  ]                = { GPIOA, 15 },
+  [FLASH_PIN_SPI_CLK ]                = { GPIOB,  3 },
+  [FLASH_PIN_SPI_MOSI]                = { GPIOA,  7 },
+  [FLASH_PIN_SPI_MISO]                = { GPIOB,  4 },
 
   /* GPIOs for external use */
-  [MICO_GPIO_2]  = {GPIOB,  2,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_8]  = {GPIOA , 2,  RCC_AHB1Periph_GPIOA},
-  [MICO_GPIO_9]  = {GPIOA,  1,  RCC_AHB1Periph_GPIOA},
-  [MICO_GPIO_12] = {GPIOA,  3,  RCC_AHB1Periph_GPIOA},
-  [MICO_GPIO_16] = {GPIOC, 13,  RCC_AHB1Periph_GPIOC},
-  [MICO_GPIO_17] = {GPIOB, 10,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_18] = {GPIOB,  9,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_19] = {GPIOB, 12,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_27] = {GPIOA, 12,  RCC_AHB1Periph_GPIOA},  
-  [MICO_GPIO_29] = {GPIOA, 10,  RCC_AHB1Periph_GPIOA},
-  [MICO_GPIO_30] = {GPIOB,  6,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_31] = {GPIOB,  8,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_33] = {GPIOB, 13,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_34] = {GPIOA,  5,  RCC_AHB1Periph_GPIOA},
-  [MICO_GPIO_35] = {GPIOA, 10,  RCC_AHB1Periph_GPIOA},
-  [MICO_GPIO_36] = {GPIOB,  1,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_37] = {GPIOB,  0,  RCC_AHB1Periph_GPIOB},
-  [MICO_GPIO_38] = {GPIOA,  4,  RCC_AHB1Periph_GPIOA},
+  [MICO_GPIO_2]                       = { GPIOB,  2 },
+  [MICO_GPIO_8]                       = { GPIOA , 2 },
+  [MICO_GPIO_9]                       = { GPIOA,  1 },
+  [MICO_GPIO_12]                      = { GPIOA,  3 },
+  [MICO_GPIO_16]                      = { GPIOC, 13 },
+  [MICO_GPIO_17]                      = { GPIOB, 10 },
+  [MICO_GPIO_18]                      = { GPIOB,  9 },
+  [MICO_GPIO_19]                      = { GPIOB, 12 },
+  [MICO_GPIO_27]                      = { GPIOA, 12 },  
+  [MICO_GPIO_29]                      = { GPIOA, 10 },
+  [MICO_GPIO_30]                      = { GPIOB,  6 },
+  [MICO_GPIO_31]                      = { GPIOB,  8 },
+  [MICO_GPIO_33]                      = { GPIOB, 13 },
+  [MICO_GPIO_34]                      = { GPIOA,  5 },
+  [MICO_GPIO_35]                      = { GPIOA, 10 },
+  [MICO_GPIO_36]                      = { GPIOB,  1 },
+  [MICO_GPIO_37]                      = { GPIOB,  0 },
+  [MICO_GPIO_38]                      = { GPIOA,  4 },
 };
 
-/*
-* Possible compile time inputs:
-* - Set which ADC peripheral to use for each ADC. All on one ADC allows sequential conversion on all inputs. All on separate ADCs allows concurrent conversion.
-*/
-/* TODO : These need fixing */
-const platform_adc_mapping_t adc_mapping[] =
-{
-  [MICO_ADC_1] = NULL,
- // [MICO_ADC_1] = {ADC1, ADC_Channel_1, RCC_APB2Periph_ADC1, 1, (platform_pin_mapping_t*)&gpio_mapping[MICO_GPIO_2]},
- // [MICO_ADC_2] = {ADC1, ADC_Channel_2, RCC_APB2Periph_ADC1, 1, (platform_pin_mapping_t*)&gpio_mapping[MICO_GPIO_4]},
- // [MICO_ADC_3] = {ADC1, ADC_Channel_3, RCC_APB2Periph_ADC1, 1, (platform_pin_mapping_t*)&gpio_mapping[MICO_GPIO_5]},
-};
+const platform_i2c_t *platform_i2c_peripherals = NULL;
 
-
-/* PWM mappings */
-const platform_pwm_mapping_t pwm_mappings[] =
-{
-#if ( MICO_WLAN_POWERSAVE_CLOCK_SOURCE == MICO_WLAN_POWERSAVE_CLOCK_IS_PWM )
-  /* Extended PWM for internal use */
-  [MICO_PWM_WLAN_POWERSAVE_CLOCK] = {TIM1, 1, RCC_APB2Periph_TIM1, GPIO_AF_TIM1, (platform_pin_mapping_t*)&gpio_mapping[MICO_GPIO_WLAN_POWERSAVE_CLOCK] }, /* or TIM2/Ch2                       */
-#endif
-  [MICO_PWM_1] = NULL,
-  //[MICO_PWM_1]  = {TIM4, 3, RCC_APB1Periph_TIM4, GPIO_AF_TIM4, (platform_pin_mapping_t*)&gpio_mapping[MICO_GPIO_10]},    /* or TIM10/Ch1                       */
-  //[MICO_PWM_2]  = {TIM12, 1, RCC_APB1Periph_TIM12, GPIO_AF_TIM12, (platform_pin_mapping_t*)&gpio_mapping[MICO_GPIO_13]}, /* or TIM1/Ch2N                       */
-  //[MICO_PWM_3]  = {TIM2, 4, RCC_APB1Periph_TIM2, GPIO_AF_TIM2, (platform_pin_mapping_t*)&gpio_mapping[MICO_GPIO_19]},    
-  /* TODO: fill in the other options here ... */
-};
-
-const platform_spi_mapping_t spi_mapping[] =
-{
-  [MICO_SPI_1]  = NULL,
-  // [MICO_SPI_1]  =
-  // {
-  //   .spi_regs              = SPI1,
-  //   .gpio_af               = GPIO_AF_SPI1,
-  //   .peripheral_clock_reg  = RCC_APB2Periph_SPI1,
-  //   .peripheral_clock_func = RCC_APB2PeriphClockCmd,
-  //   .pin_mosi              = &gpio_mapping[MICO_GPIO_8],
-  //   .pin_miso              = &gpio_mapping[MICO_GPIO_7],
-  //   .pin_clock             = &gpio_mapping[MICO_GPIO_6],
-  //   .tx_dma_stream         = DMA2_Stream5,
-  //   .rx_dma_stream         = DMA2_Stream0,
-  //   .tx_dma_channel        = DMA_Channel_3,
-  //   .rx_dma_channel        = DMA_Channel_3,
-  //   .tx_dma_stream_number  = 5,
-  //   .rx_dma_stream_number  = 0
-  // }
-};
-
-const platform_uart_mapping_t uart_mapping[] =
+const platform_uart_t platform_uart_peripherals[] =
 {
   [MICO_UART_1] =
   {
-    .usart                        = USART2,
-    .gpio_af                      = GPIO_AF_USART2,
-    .pin_tx                       = &gpio_mapping[STDIO_UART_TX],
-    .pin_rx                       = &gpio_mapping[STDIO_UART_RX],
+    .port                         = USART2,
+    .pin_tx                       = &platform_gpio_pins[STDIO_UART_TX],
+    .pin_rx                       = &platform_gpio_pins[STDIO_UART_RX],
     .pin_cts                      = NULL,
     .pin_rts                      = NULL,
-    .usart_peripheral_clock       = RCC_APB1Periph_USART2,
-    .usart_peripheral_clock_func  = RCC_APB1PeriphClockCmd,
-    .usart_irq                    = USART2_IRQn,  
-    .tx_dma                       = DMA1,
-    .tx_dma_stream                = DMA1_Stream6,
-    .tx_dma_stream_number         = 6,
-    .tx_dma_channel               = DMA_Channel_4,
-    .tx_dma_peripheral_clock      = RCC_AHB1Periph_DMA1,
-    .tx_dma_peripheral_clock_func = RCC_AHB1PeriphClockCmd,
-    .tx_dma_irq                   = DMA1_Stream6_IRQn,
-    .rx_dma                       = DMA1,
-    .rx_dma_stream                = DMA1_Stream5,
-    .rx_dma_stream_number         = 5,
-    .rx_dma_channel               = DMA_Channel_4,
-    .rx_dma_peripheral_clock      = RCC_AHB1Periph_DMA1,
-    .rx_dma_peripheral_clock_func = RCC_AHB1PeriphClockCmd,
-    .rx_dma_irq                   = DMA1_Stream5_IRQn,
+    .tx_dma_config =
+    {
+      .controller                 = DMA1,
+      .stream                     = DMA1_Stream6,
+      .channel                    = DMA_Channel_4,
+      .irq_vector                 = DMA1_Stream6_IRQn,
+      .complete_flags             = DMA_HISR_TCIF6,
+      .error_flags                = ( DMA_HISR_TEIF6 | DMA_HISR_FEIF6 ),
+    },
+    .rx_dma_config =
+    {
+      .controller                 = DMA1,
+      .stream                     = DMA1_Stream5,
+      .channel                    = DMA_Channel_4,
+      .irq_vector                 = DMA1_Stream5_IRQn,
+      .complete_flags             = DMA_HISR_TCIF5,
+      .error_flags                = ( DMA_HISR_TEIF5 | DMA_HISR_FEIF5 | DMA_HISR_DMEIF5 ),
+    },
   },
   [MICO_UART_2] =
   {
-    .usart                        = USART1,
-    .gpio_af                      = GPIO_AF_USART1,
-    .pin_tx                       = &gpio_mapping[MICO_GPIO_30],
-    .pin_rx                       = &gpio_mapping[MICO_GPIO_29],
+    .port                         = USART1,
+    .pin_tx                       = &platform_gpio_pins[MICO_GPIO_30],
+    .pin_rx                       = &platform_gpio_pins[MICO_GPIO_29],
     .pin_cts                      = NULL,
     .pin_rts                      = NULL,
-    .usart_peripheral_clock       = RCC_APB2Periph_USART1,
-    .usart_peripheral_clock_func  = RCC_APB2PeriphClockCmd,
-    .usart_irq                    = USART1_IRQn,
-    .tx_dma                       = DMA2,
-    .tx_dma_stream                = DMA2_Stream7,
-    .tx_dma_channel               = DMA_Channel_4,
-    .tx_dma_peripheral_clock      = RCC_AHB1Periph_DMA2,
-    .tx_dma_peripheral_clock_func = RCC_AHB1PeriphClockCmd,
-    .tx_dma_irq                   = DMA2_Stream7_IRQn,
-    .rx_dma                       = DMA2,
-    .rx_dma_stream                = DMA2_Stream2,
-    .rx_dma_channel               = DMA_Channel_4,
-    .rx_dma_peripheral_clock      = RCC_AHB1Periph_DMA2,
-    .rx_dma_peripheral_clock_func = RCC_AHB1PeriphClockCmd,
-    .rx_dma_irq                   = DMA2_Stream2_IRQn,
+    .tx_dma_config =
+    {
+      .controller                 = DMA2,
+      .stream                     = DMA2_Stream7,
+      .channel                    = DMA_Channel_4,
+      .irq_vector                 = DMA2_Stream7_IRQn,
+      .complete_flags             = DMA_HISR_TCIF7,
+      .error_flags                = ( DMA_HISR_TEIF7 | DMA_HISR_FEIF7 ),
+    },
+    .rx_dma_config =
+    {
+      .controller                 = DMA2,
+      .stream                     = DMA2_Stream2,
+      .channel                    = DMA_Channel_4,
+      .irq_vector                 = DMA2_Stream2_IRQn,
+      .complete_flags             = DMA_LISR_TCIF2,
+      .error_flags                = ( DMA_LISR_TEIF2 | DMA_LISR_FEIF2 | DMA_LISR_DMEIF2 ),
+    },
+  },
+};
+platform_uart_driver_t platform_uart_drivers[MICO_UART_MAX];
+
+const platform_spi_t platform_spi_peripherals[] =
+{
+  [MICO_SPI_1]  =
+  {
+    .port                         = SPI1,
+    .gpio_af                      = GPIO_AF_SPI1,
+    .peripheral_clock_reg         = RCC_APB2Periph_SPI1,
+    .peripheral_clock_func        = RCC_APB2PeriphClockCmd,
+    .pin_mosi                     = &platform_gpio_pins[FLASH_PIN_SPI_MOSI],
+    .pin_miso                     = &platform_gpio_pins[FLASH_PIN_SPI_MISO],
+    .pin_clock                    = &platform_gpio_pins[FLASH_PIN_SPI_CLK],
+    .tx_dma =
+    {
+      .controller                 = DMA2,
+      .stream                     = DMA2_Stream5,
+      .channel                    = DMA_Channel_3,
+      .irq_vector                 = DMA2_Stream5_IRQn,
+      .complete_flags             = DMA_HISR_TCIF5,
+      .error_flags                = ( DMA_HISR_TEIF5 | DMA_HISR_FEIF5 ),
+    },
+    .rx_dma =
+    {
+      .controller                 = DMA2,
+      .stream                     = DMA2_Stream0,
+      .channel                    = DMA_Channel_3,
+      .irq_vector                 = DMA2_Stream0_IRQn,
+      .complete_flags             = DMA_LISR_TCIF0,
+      .error_flags                = ( DMA_LISR_TEIF0 | DMA_LISR_FEIF0 | DMA_LISR_DMEIF0 ),
+    },
+  }
+};
+
+platform_spi_driver_t platform_spi_drivers[MICO_SPI_MAX];
+
+const platform_flash_t platform_flash_peripherals[] =
+{
+  [MICO_SPI_FLASH] =
+  {
+    .flash_type                   = FLASH_TYPE_SPI,
+    .flash_start_addr             = 0x000000,
+    .flash_length                 = 0x200000,
+  },
+  [MICO_INTERNAL_FLASH] =
+  {
+    .flash_type                   = FLASH_TYPE_INTERNAL,
+    .flash_start_addr             = 0x08000000,
+    .flash_length                 = 0x80000,
   },
 };
 
-const platform_i2c_mapping_t i2c_mapping[] =
+platform_flash_driver_t platform_flash_drivers[MICO_FLASH_MAX];
+
+#if defined ( USE_MICO_SPI_FLASH )
+const mico_spi_device_t mico_spi_flash =
 {
-  [MICO_I2C_1] = NULL,
-  // [MICO_I2C_1] =
-  // {
-  //   .i2c = I2C1,
-  //   .pin_scl                 = &gpio_mapping[MICO_GPIO_1],
-  //   .pin_sda                 = &gpio_mapping[MICO_GPIO_2],
-  //   .peripheral_clock_reg    = RCC_APB1Periph_I2C1,
-  //   .tx_dma                  = DMA1,
-  //   .tx_dma_peripheral_clock = RCC_AHB1Periph_DMA1,
-  //   .tx_dma_stream           = DMA1_Stream7,
-  //   .rx_dma_stream           = DMA1_Stream5,
-  //   .tx_dma_stream_id        = 7,
-  //   .rx_dma_stream_id        = 5,
-  //   .tx_dma_channel          = DMA_Channel_1,
-  //   .rx_dma_channel          = DMA_Channel_1,
-  //   .gpio_af                 = GPIO_AF_I2C1
-  // },
+  .port        = MICO_SPI_1,
+  .chip_select = FLASH_PIN_SPI_CS,
+  .speed       = 40000000,
+  .mode        = (SPI_CLOCK_RISING_EDGE | SPI_CLOCK_IDLE_HIGH | SPI_USE_DMA | SPI_MSB_FIRST ),
+  .bits        = 8
 };
+#endif
+
+/* Wi-Fi control pins. Used by platform/MCU/wlan_platform_common.c
+* SDIO: EMW1062_PIN_BOOTSTRAP[1:0] = b'00
+* gSPI: EMW1062_PIN_BOOTSTRAP[1:0] = b'01
+*/
+const platform_gpio_t wifi_control_pins[] =
+{
+  [WIFI_PIN_RESET]           = { GPIOB, 14 },
+};
+
+/* Wi-Fi SDIO bus pins. Used by platform/MCU/STM32F2xx/EMW1062_driver/wlan_SDIO.c */
+const platform_gpio_t wifi_sdio_pins[] =
+{
+  [WIFI_PIN_SDIO_OOB_IRQ] = { GPIOA,  0 },
+  [WIFI_PIN_SDIO_CLK    ] = { GPIOB, 15 },
+  [WIFI_PIN_SDIO_CMD    ] = { GPIOA,  6 },
+  [WIFI_PIN_SDIO_D0     ] = { GPIOB,  7 },
+  [WIFI_PIN_SDIO_D1     ] = { GPIOA,  8 },
+  [WIFI_PIN_SDIO_D2     ] = { GPIOA,  9 },
+  [WIFI_PIN_SDIO_D3     ] = { GPIOB,  5 },
+};
+
+
+/******************************************************
+*           Interrupt Handler Definitions
+******************************************************/
+
+MICO_RTOS_DEFINE_ISR( USART1_IRQHandler )
+{
+  platform_uart_irq( &platform_uart_drivers[MICO_UART_2] );
+}
+
+MICO_RTOS_DEFINE_ISR( USART2_IRQHandler )
+{
+  platform_uart_irq( &platform_uart_drivers[MICO_UART_1] );
+}
+
+MICO_RTOS_DEFINE_ISR( DMA1_Stream6_IRQHandler )
+{
+  platform_uart_tx_dma_irq( &platform_uart_drivers[MICO_UART_1] );
+}
+
+MICO_RTOS_DEFINE_ISR( DMA2_Stream7_IRQHandler )
+{
+  platform_uart_tx_dma_irq( &platform_uart_drivers[MICO_UART_2] );
+}
+
+MICO_RTOS_DEFINE_ISR( DMA1_Stream5_IRQHandler )
+{
+  platform_uart_rx_dma_irq( &platform_uart_drivers[MICO_UART_1] );
+}
+
+MICO_RTOS_DEFINE_ISR( DMA2_Stream2_IRQHandler )
+{
+  platform_uart_rx_dma_irq( &platform_uart_drivers[MICO_UART_2] );
+}
+
 
 /******************************************************
 *               Function Definitions
 ******************************************************/
+
+void platform_init_peripheral_irq_priorities( void )
+{
+  /* Interrupt priority setup. Called by WICED/platform/MCU/STM32F2xx/platform_init.c */
+  NVIC_SetPriority( RTC_WKUP_IRQn    ,  1 ); /* RTC Wake-up event   */
+  NVIC_SetPriority( SDIO_IRQn        ,  2 ); /* WLAN SDIO           */
+  NVIC_SetPriority( DMA2_Stream3_IRQn,  3 ); /* WLAN SDIO DMA       */
+  //NVIC_SetPriority( DMA1_Stream3_IRQn,  3 ); /* WLAN SPI DMA        */
+  NVIC_SetPriority( USART1_IRQn      ,  6 ); /* MICO_UART_1         */
+  NVIC_SetPriority( USART2_IRQn      ,  6 ); /* MICO_UART_2         */
+  NVIC_SetPriority( DMA1_Stream6_IRQn,  7 ); /* MICO_UART_1 TX DMA  */
+  NVIC_SetPriority( DMA1_Stream5_IRQn,  7 ); /* MICO_UART_1 RX DMA  */
+  NVIC_SetPriority( DMA2_Stream7_IRQn,  7 ); /* MICO_UART_2 TX DMA  */
+  NVIC_SetPriority( DMA2_Stream2_IRQn,  7 ); /* MICO_UART_2 RX DMA  */
+  NVIC_SetPriority( EXTI0_IRQn       , 14 ); /* GPIO                */
+  NVIC_SetPriority( EXTI1_IRQn       , 14 ); /* GPIO                */
+  NVIC_SetPriority( EXTI2_IRQn       , 14 ); /* GPIO                */
+  NVIC_SetPriority( EXTI3_IRQn       , 14 ); /* GPIO                */
+  NVIC_SetPriority( EXTI4_IRQn       , 14 ); /* GPIO                */
+  NVIC_SetPriority( EXTI9_5_IRQn     , 14 ); /* GPIO                */
+  NVIC_SetPriority( EXTI15_10_IRQn   , 14 ); /* GPIO                */
+}
 
 static void _button_EL_irq_handler( void* arg )
 {
@@ -265,12 +339,6 @@ static void _button_EL_irq_handler( void* arg )
   }
 }
 
-static void _button_STANDBY_irq_handler( void* arg )
-{
-  (void)(arg);
-  PlatformStandbyButtonClickedCallback();
-}
-
 static void _button_EL_Timeout_handler( void* arg )
 {
   (void)(arg);
@@ -278,47 +346,22 @@ static void _button_EL_Timeout_handler( void* arg )
   PlatformEasyLinkButtonLongPressedCallback();
 }
 
-bool watchdog_check_last_reset( void )
-{
-  if ( RCC->CSR & RCC_CSR_WDGRSTF )
-  {
-    /* Clear the flag and return */
-    RCC->CSR |= RCC_CSR_RMVF;
-    return true;
-  }
-  
-  return false;
-}
-
-OSStatus mico_platform_init( void )
-{
-  platform_log( "Platform initialised" );
-  
-  if ( true == watchdog_check_last_reset() )
-  {
-    platform_log( "WARNING: Watchdog reset occured previously. Please see watchdog.c for debugging instructions." );
-  }
-  
-  return kNoErr;
-}
-
 void init_platform( void )
 {
-   MicoGpioInitialize( (mico_gpio_t)MICO_SYS_LED, OUTPUT_PUSH_PULL );
-   MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
-   MicoGpioInitialize( (mico_gpio_t)MICO_RF_LED, OUTPUT_OPEN_DRAIN_NO_PULL );
-   MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
+  MicoGpioInitialize( (mico_gpio_t)MICO_SYS_LED, OUTPUT_PUSH_PULL );
+  MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
+  MicoGpioInitialize( (mico_gpio_t)MICO_RF_LED, OUTPUT_OPEN_DRAIN_NO_PULL );
+  MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
   
-   //  Initialise EasyLink buttons
-   MicoGpioInitialize( (mico_gpio_t)EasyLink_BUTTON, INPUT_PULL_UP );
-   mico_init_timer(&_button_EL_timer, RestoreDefault_TimeOut, _button_EL_Timeout_handler, NULL);
-   MicoGpioEnableIRQ( (mico_gpio_t)EasyLink_BUTTON, IRQ_TRIGGER_BOTH_EDGES, _button_EL_irq_handler, NULL );
+  MicoGpioInitialize((mico_gpio_t)BOOT_SEL, INPUT_PULL_UP);
+  MicoGpioInitialize((mico_gpio_t)MFG_SEL, INPUT_PULL_UP);
   
-   //  Initialise Standby/wakeup switcher
-   MicoGpioInitialize( (mico_gpio_t)Standby_SEL, INPUT_PULL_UP );
-   MicoGpioEnableIRQ( (mico_gpio_t)Standby_SEL , IRQ_TRIGGER_FALLING_EDGE, _button_STANDBY_irq_handler, NULL);
+  //  Initialise EasyLink buttons
+  MicoGpioInitialize( (mico_gpio_t)EasyLink_BUTTON, INPUT_PULL_UP );
+  mico_init_timer(&_button_EL_timer, RestoreDefault_TimeOut, _button_EL_Timeout_handler, NULL);
+  MicoGpioEnableIRQ( (mico_gpio_t)EasyLink_BUTTON, IRQ_TRIGGER_BOTH_EDGES, _button_EL_irq_handler, NULL );
 
-   MicoFlashInitialize( MICO_SPI_FLASH );
+  //MicoFlashInitialize( MICO_SPI_FLASH );
 }
 
 #ifdef BOOTLOADER
@@ -345,26 +388,26 @@ static uint8_t data[SizePerRW];
 
 uint8_t CRC8_Table(uint8_t crc8_ori, uint8_t *p, uint32_t counter)
 {
-    uint8_t crc8 = crc8_ori;
-    for( ; counter > 0; counter--){
-        crc8 = CRC8Table[crc8^*p];
-        p++;
-    }
-    return(crc8);
+  uint8_t crc8 = crc8_ori;
+  for( ; counter > 0; counter--){
+    crc8 = CRC8Table[crc8^*p];
+    p++;
+  }
+  return(crc8);
 }
 
 void init_platform_bootloader( void )
 {
   OSStatus err = kNoErr;
-
+  
   MicoGpioInitialize( (mico_gpio_t)MICO_SYS_LED, OUTPUT_PUSH_PULL );
   MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
   MicoGpioInitialize( (mico_gpio_t)MICO_RF_LED, OUTPUT_OPEN_DRAIN_NO_PULL );
   MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
   
   MicoGpioInitialize((mico_gpio_t)BOOT_SEL, INPUT_PULL_UP);
-  MicoGpioInitialize((mico_gpio_t)MFG_SEL, INPUT_HIGH_IMPEDANCE);
-
+  MicoGpioInitialize((mico_gpio_t)MFG_SEL, INPUT_PULL_UP);
+  
   /* Specific operations used in EMW3165 production */
 #define NEED_RF_DRIVER_COPY_BASE    ((uint32_t)0x08008000)
 #define TEMP_RF_DRIVER_BASE         ((uint32_t)0x08040000)
@@ -379,10 +422,10 @@ void init_platform_bootloader( void )
   uint32_t destStartAddress_tmp = DRIVER_START_ADDRESS;
   uint32_t sourceStartAddress_tmp = TEMP_RF_DRIVER_BASE;
   uint32_t i;
-
+  
   if ( isDriverNeedCopy != 0x0 )
     return;
-
+  
   platform_log( "Bootloader start to copy RF driver..." );
   /* Copy RF driver to SPI flash */
   err = MicoFlashInitialize( (mico_flash_t)MICO_FLASH_FOR_DRIVER );
@@ -408,7 +451,7 @@ void init_platform_bootloader( void )
     err = MicoFlashWrite( MICO_FLASH_FOR_DRIVER, &destStartAddress_tmp, data, copyLength);
     require_noerr(err, exit);
   }
-
+  
   printf("\r\n");
   /* Check CRC-8 check-sum */
   platform_log( "Bootloader start to verify RF driver..." );
@@ -427,22 +470,26 @@ void init_platform_bootloader( void )
     printf(".");
     err = MicoFlashRead( MICO_FLASH_FOR_DRIVER, &destStartAddress_tmp, data, copyLength );
     require_noerr( err, exit );
-
+    
     targetCrcResult = CRC8_Table(targetCrcResult, data, copyLength);
   }
-
+  
   printf("\r\n");
-  require_string( crcResult == targetCrcResult, exit, "Check-sum error" ); 
+  //require_string( crcResult == targetCrcResult, exit, "Check-sum error" ); 
+  if( crcResult != targetCrcResult ){
+    platform_log("Check-sum error");
+    while(1);
+  }
   /* Clear RF driver from temperary storage */
   platform_log("Bootloader start to clear RF driver temporary storage...");
-
+  
   err = MicoFlashInitialize( (mico_flash_t)MICO_INTERNAL_FLASH );
   require_noerr(err, exit);  
   
   /* Clear copy tag */
   err = MicoFlashErase(MICO_INTERNAL_FLASH, NEED_RF_DRIVER_COPY_BASE, NEED_RF_DRIVER_COPY_BASE);
   require_noerr(err, exit);
-
+  
 exit:
   MicoFlashFinalize( MICO_INTERNAL_FLASH );
   MicoFlashFinalize( MICO_FLASH_FOR_DRIVER );
@@ -450,47 +497,22 @@ exit:
 
 #endif
 
-
-void host_platform_reset_wifi( bool reset_asserted )
-{
-  if ( reset_asserted == true )
-  {
-    MicoGpioOutputLow( (mico_gpio_t)WL_RESET );  
-  }
-  else
-  {
-    MicoGpioOutputHigh( (mico_gpio_t)WL_RESET ); 
-  }
-}
-
-void host_platform_power_wifi( bool power_enabled )
-{
-  if ( power_enabled == true )
-  {
-    MicoGpioOutputLow( (mico_gpio_t)WL_REG );  
-  }
-  else
-  {
-    MicoGpioOutputHigh( (mico_gpio_t)WL_REG ); 
-  }
-}
-
 void MicoSysLed(bool onoff)
 {
-    if (onoff) {
-        MicoGpioOutputHigh( (mico_gpio_t)MICO_SYS_LED );
-    } else {
-        MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
-    }
+  if (onoff) {
+    MicoGpioOutputHigh( (mico_gpio_t)MICO_SYS_LED );
+  } else {
+    MicoGpioOutputLow( (mico_gpio_t)MICO_SYS_LED );
+  }
 }
 
 void MicoRfLed(bool onoff)
 {
-    if (onoff) {
-        MicoGpioOutputLow( (mico_gpio_t)MICO_RF_LED );
-    } else {
-        MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
-    }
+  if (onoff) {
+    MicoGpioOutputLow( (mico_gpio_t)MICO_RF_LED );
+  } else {
+    MicoGpioOutputHigh( (mico_gpio_t)MICO_RF_LED );
+  }
 }
 
 bool MicoShouldEnterMFGMode(void)

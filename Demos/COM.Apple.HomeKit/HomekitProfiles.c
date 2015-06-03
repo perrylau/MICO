@@ -1,6 +1,8 @@
+
 #include "HomeKitProfiles.h"
 #include "Common.h"
 #include "MICODefine.h"
+#include "platform_config.h"
 
 const struct _hapAccessory_t hapObjects[NumberofAccessories] = 
 {
@@ -44,6 +46,7 @@ const struct _hapAccessory_t hapObjects[NumberofAccessories] =
             .valueType = ValueType_null,
             .hasStaticValue = true,
             .value = NULL,
+            .secureRead = false,
             .secureWrite = true,
             .hasEvents = false,
           }	

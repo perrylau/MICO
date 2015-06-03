@@ -24,7 +24,7 @@
 #include "StringUtils.h"
 #include "HTTPUtils.h"
 #include "MicoPlatform.h"
-#include "platform_common_config.h"
+#include "platform.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -893,7 +893,7 @@ OSStatus CreateHTTPMessage( const char *methold, const char *url, const char *co
   // Create HTTP Response
   if(inDataLen)
     sprintf( (char*)*outMessage,
-            "%s %s\? %s %s%s %s%s%s %d%s",
+            "%s %s\? %s%s%s %s%s%s %d%s",
             methold, url, "HTTP/1.1", kCRLFNewLine, 
             "Content-Type:", contentType, kCRLFNewLine,
             "Content-Length:", (int)inDataLen, kCRLFLineEnding );

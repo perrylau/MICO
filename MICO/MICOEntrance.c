@@ -32,7 +32,6 @@
 #include "time.h"
 #include "MicoPlatform.h"
 #include "platform.h"
-#include "platform_common_config.h"
 #include "MICODefine.h"
 #include "MICOAppDefine.h"
 
@@ -76,14 +75,12 @@ void micoNotify_ReadAppInfoHandler(char *str, int len, mico_Context_t * const in
   snprintf( str, len, "%s, build at %s %s", APP_INFO, __TIME__, __DATE__);
 }
 
-
+bool needsUpdate = false;
 
 USED void PlatformEasyLinkButtonClickedCallback(void)
 {
   mico_log_trace();
-  bool needsUpdate = false;
-  mico_log("PlatformEasyLinkButtonClickedCallback");
-  
+    
   if(context->flashContentInRam.micoSystemConfig.easyLinkByPass != EASYLINK_BYPASS_NO){
     context->flashContentInRam.micoSystemConfig.easyLinkByPass = EASYLINK_BYPASS_NO;
     needsUpdate = true;
@@ -93,10 +90,7 @@ USED void PlatformEasyLinkButtonClickedCallback(void)
     context->flashContentInRam.micoSystemConfig.configured = wLanUnConfigured;
     needsUpdate = true;
   }
-  
-  if(needsUpdate == true)
-    MICOUpdateConfiguration(context);
-  
+ 
   context->micoStatus.sys_state = eState_Software_Reset;
   require(context->micoStatus.sys_state_change_sem, exit);
   mico_rtos_set_semaphore(&context->micoStatus.sys_state_change_sem);
@@ -268,7 +262,12 @@ void _ConnectToAP( mico_Context_t * const inContext)
 static void _watchdog_reload_timer_handler( void* arg )
 {
   (void)(arg);
-  MICOUpdateSystemMonitor(&mico_monitor, APPLICATION_WATCHDOG_TIMEOUT_SECONDS*1000-100);
+  MICOUpdateSystemMonitor(&mico_monitor, APPLICATION_WATCHDOG_TIMEOUT_SECONDS*1000);
+}
+
+mico_Context_t *getGlobalContext(void)
+{
+  return context;
 }
 
 int application_start(void)
@@ -304,12 +303,13 @@ int application_start(void)
   require_noerr( err, exit ); 
 
   /*wlan driver and tcpip init*/
+  mico_log( "MiCO starting..." );
   MicoInit();
-#ifdef MICO_CLI_ENABLE  
+#ifdef MICO_CLI_ENABLE
   MicoCliInit();
 #endif
   MicoSysLed(true);
-  mico_log("Free memory %d bytes", MicoGetMemoryInfo()->free_memory) ; 
+  mico_log("Free memory %d bytes", MicoGetMemoryInfo()->free_memory); 
   micoWlanGetIPStatus(&para, Station);
   formatMACAddr(context->micoStatus.mac, (char *)&para.mac);
   MicoGetRfVer(wifi_ver, sizeof(wifi_ver));
@@ -325,7 +325,7 @@ int application_start(void)
   mico_init_timer(&_watchdog_reload_timer,APPLICATION_WATCHDOG_TIMEOUT_SECONDS*1000/2, _watchdog_reload_timer_handler, NULL);
   mico_start_timer(&_watchdog_reload_timer);
 
-  /* Enter test mode, call a build-in test function amd output on STDIO */
+  /* Enter test mode, call a build-in test function amd output on MFG UART */
   if(MicoShouldEnterMFGMode()==true){
     mico_log( "Enter MFG mode by MFG button" );
     mico_mfg_test(context);
@@ -392,7 +392,7 @@ int application_start(void)
   free(WAC_Params);
   require_noerr( err, exit );
 #else
-  #error "Wi-Fi configuration mode is not defined"?
+  #error "Wi-Fi configuration mode is not defined"
 #endif
   }
 #ifdef MFG_MODE_AUTO
@@ -440,6 +440,10 @@ int application_start(void)
   
   /*System status changed*/
   while(mico_rtos_get_semaphore(&context->micoStatus.sys_state_change_sem, MICO_WAIT_FOREVER)==kNoErr){
+    
+    if(needsUpdate == true)
+      MICOUpdateConfiguration(context);
+    
     switch(context->micoStatus.sys_state){
       case eState_Normal:
         break;

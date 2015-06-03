@@ -34,7 +34,6 @@
 #include "MICONotificationCenter.h"
 
 #include "MicoPlatform.h"
-#include "platform_common_config.h"
 #include "StringUtils.h"
 #include "HTTPUtils.h"
 #include "SocketUtils.h"
@@ -249,8 +248,8 @@ OSStatus startEasyLink( mico_Context_t * const inContext)
   require_noerr(err, exit);
   err = MICOAddNotification( mico_notify_DHCP_COMPLETED, (void *)EasyLinkNotify_DHCPCompleteHandler );
   require_noerr( err, exit );    
-  err = MICOAddNotification( mico_notify_SYS_WILL_POWER_OFF, (void *)EasyLinkNotify_SYSWillPowerOffHandler );
-  require_noerr( err, exit ); 
+  //err = MICOAddNotification( mico_notify_SYS_WILL_POWER_OFF, (void *)EasyLinkNotify_SYSWillPowerOffHandler );
+  //require_noerr( err, exit ); 
   
   // Start the EasyLink thread
   ConfigWillStart(inContext);

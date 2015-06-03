@@ -36,12 +36,6 @@
 void appRestoreDefault_callback(mico_Context_t *inContext)
 {
   inContext->flashContentInRam.appConfig.configDataVer = CONFIGURATION_VERSION;
-  inContext->flashContentInRam.appConfig.localServerPort = LOCAL_PORT;
-  inContext->flashContentInRam.appConfig.localServerEnable = true;
-  inContext->flashContentInRam.appConfig.USART_BaudRate = 115200;
-  inContext->flashContentInRam.appConfig.remoteServerEnable = true;
-  sprintf(inContext->flashContentInRam.appConfig.remoteServerDomain, DEAFULT_REMOTE_SERVER);
-  inContext->flashContentInRam.appConfig.remoteServerPort = DEFAULT_REMOTE_SERVER_PORT;
   inContext->flashContentInRam.appConfig.haPairSetupFinished = false;
   memset(inContext->flashContentInRam.appConfig.LTSK, 0x0, 64);
   HMClearPairList();
@@ -55,11 +49,11 @@ OSStatus MICOStartApplication( mico_Context_t * const inContext )
   require_action(inContext, exit, err = kParamErr);
 
   inContext->appStatus.statusNumber = 0x01;
+
   if( MicoMFiAuthInitialize( MICO_I2C_CP ) == kNoErr )
     inContext->appStatus.useMFiAuth = true;
   else
     inContext->appStatus.useMFiAuth = false;
-
 
   /*Bonjour for service searching*/
   if(inContext->flashContentInRam.micoSystemConfig.bonjourEnable == true)

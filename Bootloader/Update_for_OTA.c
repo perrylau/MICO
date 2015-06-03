@@ -31,6 +31,7 @@
 */
 
 #include "MicoPlatform.h"
+#include "platform_config.h"
 #include "debug.h"
 
 typedef int Log_Status;					
@@ -163,7 +164,7 @@ OSStatus update(void)
           require_noerr(err, exit);
           err = MicoFlashFinalize( MICO_FLASH_FOR_UPDATE );
           require_noerr(err, exit);
-          break;
+          goto exit;
         }
       }
     }

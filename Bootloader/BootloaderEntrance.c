@@ -34,7 +34,7 @@
 #include "MicoPlatform.h"
 #include "platform.h"
 #include "platformInternal.h"
-#include "platform_common_config.h"
+#include "platform_config.h"
 
 #define boot_log(M, ...) custom_log("BOOT", M, ##__VA_ARGS__)
 #define boot_log_trace() custom_log_trace("BOOT")
@@ -84,14 +84,14 @@ int main(void)
   init_architecture();
   init_platform_bootloader();
 
+  mico_set_bootload_ver();
+  
 #ifdef MICO_FLASH_FOR_UPDATE
   update();
 #endif
   
-  /* BOOT_SEL = 1 => Normal start*/
   if(MicoShouldEnterBootloader() == false)
     startApplication();
-  /* BOOT_SEL = 0, MFG_SEL = 0 => Normal start, MICO will enter MFG mode when "MicoInit" is called*/
   else if(MicoShouldEnterMFGMode() == true)
     startApplication();
 
